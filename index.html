@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SURPRISE ME by STG</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Pick a theme, press the button, and get a ready-to-use image prompt from STG.">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one centered column — hero, shuffle button, 3-step strip, then the challenge card revealed below. Single dark look by design. */
+:root{
+  --pink:#FF3E88; --pink-lt:#FF74AC;
+  --green:#22C579; --green-lt:#55E39D;
+  --black:#0A0A0B; --panel:#141416; --panel-2:#1B1B1E; --line:#2A2A2F;
+  --white:#FAFAF9; --muted:#A9A9AE;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--black);color:var(--white)}
+body{font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:
+    radial-gradient(60rem 30rem at 85% -10%,rgba(255,62,136,.14),transparent 60%),
+    radial-gradient(50rem 28rem at -10% 40%,rgba(34,197,121,.10),transparent 60%),
+    var(--black);
+  min-height:100%;}
+.wrap{max-width:880px;margin:0 auto}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:18px;border-bottom:1px solid var(--line)}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white)}
+.logo{font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:.02em;line-height:1}
+.logo b{color:var(--pink)} .logo i{font-style:normal;color:var(--green)}
+.mark small{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+
+/* hero */
+.hero{position:relative;text-align:center;padding-block:48px 28px;display:grid;gap:18px;justify-items:center}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.eyebrow span{color:var(--pink)}
+h1{margin:0;font-family:var(--display);font-weight:900;line-height:.82;text-transform:uppercase;letter-spacing:.005em;
+  font-size:clamp(84px,19vw,184px);text-wrap:balance}
+h1 .me{color:var(--pink);display:inline-flex;align-items:flex-start}
+h1 .me sup{font-family:var(--body);font-size:.12em;font-weight:700;color:var(--white);margin-left:.06em;margin-top:.25em}
+.by{font-family:var(--display);font-weight:700;font-size:clamp(20px,3.6vw,30px);letter-spacing:.32em;text-transform:uppercase;color:var(--green);margin-top:-4px}
+.lede{font-weight:700;font-size:clamp(17px,2.4vw,20px);letter-spacing:.04em;text-transform:uppercase;margin:6px 0 0;line-height:1.35}
+.lede em{font-style:normal;color:var(--green-lt)}
+.sub{color:var(--muted);margin:0;max-width:44ch}
+.spark{position:absolute;font-size:34px;line-height:1;pointer-events:none;user-select:none}
+.s1{left:6%;top:38%;color:var(--pink);font-size:46px;animation:spin 14s linear infinite}
+.s2{right:9%;top:46%;color:var(--green);animation:float 5s ease-in-out infinite}
+.s3{right:16%;top:16%;color:var(--pink-lt);font-size:22px;animation:float 6s ease-in-out infinite reverse}
+.s4{left:14%;top:12%;color:var(--green-lt);font-size:20px;animation:float 7s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{50%{transform:translateY(-10px) rotate(12deg)}}
+
+/* button */
+.shuffle{appearance:none;border:0;cursor:pointer;margin-top:10px;
+  display:inline-flex;align-items:center;gap:14px;
+  font-family:var(--display);font-weight:900;font-size:clamp(24px,4.4vw,34px);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--black);background:var(--pink);padding:18px 30px 18px 22px;border-radius:999px;
+  box-shadow:0 0 0 2px var(--black),0 0 0 4px var(--pink),0 18px 50px -12px rgba(255,62,136,.6);
+  transition:transform .15s ease,background .15s ease,box-shadow .15s ease;min-width:min(100%,340px);justify-content:center}
+.shuffle:hover{background:var(--pink-lt);transform:translateY(-2px)}
+.shuffle:active{transform:translateY(1px)}
+.shuffle:focus-visible{outline:3px solid var(--green);outline-offset:6px}
+.shuffle .die{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--black);color:var(--green);font-size:24px;flex:none}
+.shuffle.shuffling .die{animation:roll .45s linear infinite}
+.shuffle:disabled{cursor:progress}
+@keyframes roll{to{transform:rotate(360deg)}}
+.hint{font-size:14px;color:var(--muted);margin:0}
+
+/* steps */
+.steps{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 18px;padding-block:22px;border-block:1px solid var(--line);margin-top:22px}
+.step{display:flex;align-items:baseline;gap:8px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+.step b{font-family:var(--mono);font-size:13px;color:var(--green);letter-spacing:.06em}
+.dot{color:var(--pink)}
+.rules{text-align:center;display:grid;gap:4px;padding-block:20px 8px}
+.rules p{margin:0}
+.rules .big{font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:15px}
+.rules .small{color:var(--muted);font-size:14px}
+
+/* result */
+.result{margin-block:28px 8px;background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;scroll-margin-top:16px}
+.result:focus{outline:none}
+.result.reveal{animation:pop .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:.4}to{transform:none;opacity:1}}
+.r-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:18px 22px;background:linear-gradient(90deg,var(--pink),#d42f74);color:var(--black)}
+.r-num{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.1em;background:var(--black);color:var(--green-lt);padding:6px 10px;border-radius:8px}
+.r-type{font-family:var(--display);font-weight:900;font-size:clamp(24px,4vw,32px);letter-spacing:.04em;text-transform:uppercase;line-height:1;flex:1 1 auto;min-width:0}
+.personality{padding:16px 22px 0;margin:0;font-weight:600;color:var(--green-lt);font-size:17px}
+.details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:12px 22px 6px}
+.detail{padding:14px 0;border-bottom:1px solid var(--line);min-width:0}
+.detail:nth-child(odd){padding-right:18px}
+.detail:nth-child(even){padding-left:18px;border-left:1px solid var(--line)}
+.detail.wide{grid-column:1/-1;padding-left:0;border-left:0}
+.detail-label{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--green);text-transform:uppercase}
+.detail-value{margin:0;font-weight:600;overflow-wrap:anywhere}
+.swatches{display:flex;gap:6px;margin-top:8px}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--panel-2);box-shadow:0 0 0 1px var(--line)}
+.twist{margin:14px 22px 0;padding:12px 14px;border-radius:12px;background:rgba(34,197,121,.12);border:1px dashed var(--green);color:var(--green-lt);font-weight:700;letter-spacing:.02em}
+.p-wrap{margin:18px 22px 0;display:grid;gap:8px}
+.p-label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--pink-lt);text-transform:uppercase;margin:0}
+.p-help{margin:0;font-size:14px;color:var(--muted)}
+.prompt{margin:0;background:var(--black);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:15px;line-height:1.65;color:var(--white);white-space:pre-wrap;overflow-wrap:anywhere}
+.prompt:focus{outline:2px solid var(--green);outline-offset:2px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:18px 22px 22px}
+.btn{appearance:none;cursor:pointer;font-family:var(--body);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:12px 20px;transition:background .15s ease,color .15s ease}
+.btn-copy{background:var(--green);color:var(--black);border:0}
+.btn-copy:hover{background:var(--green-lt)}
+.btn-again{background:transparent;color:var(--pink);border:2px solid var(--pink)}
+.btn-again:hover{background:var(--pink);color:var(--black)}
+.btn:focus-visible{outline:3px solid var(--white);outline-offset:3px}
+.feedback{margin:0;font-size:14px;color:var(--muted);flex-basis:100%}
+
+/* footer */
+footer{text-align:center;padding-block:34px 40px;display:grid;gap:6px}
+footer .f1{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+footer .f1 b{color:var(--pink)}
+footer .f2{font-size:13px;color:var(--muted);margin:0}
+footer .f3{color:var(--green);letter-spacing:.4em;margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:620px){
+  .details{grid-template-columns:minmax(0,1fr)}
+  .detail:nth-child(n){padding-left:0;padding-right:0;border-left:0}
+  .spark.s1,.spark.s3{display:none}
+  .s2{right:2%;top:30%}
+  .hero{padding-block:34px 20px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="#" aria-label="SURPRISE ME by STG home">
+      <span class="logo"><b>ST</b><i>G</i></span>
+      <small>STG · Sivad Tamara Graphics</small>
+    </a>
+    <span class="tag">Random prompts. Real creators.</span>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <span class="spark s1" aria-hidden="true">✳</span>
+      <span class="spark s2" aria-hidden="true">✦</span>
+      <span class="spark s3" aria-hidden="true">✧</span>
+      <span class="spark s4" aria-hidden="true">✦</span>
+      <p class="eyebrow"><span>✦</span> Tonight’s assignment is waiting <span>✦</span></p>
+      <h1 id="title">Surprise<br><span class="me">Me</span></h1>
+      <div class="by">by STG · Creator Challenge</div>
+      <p class="lede">Press the button. Take the challenge.<br><em>Show us what you made.</em></p>
+      <p class="sub">You don’t pick it. You just make it. 👀</p>
+      <button class="shuffle" id="shuffle" type="button">
+        <span class="die" aria-hidden="true">⚄</span>
+        <span id="button-text">Surprise Me</span>
+      </button>
+      <p class="hint">Whatever lands is yours. Make it your own way.</p>
+    </section>
+
+    <div class="steps" aria-label="How it works">
+      <span class="step"><b>01</b> Get surprised</span><span class="dot" aria-hidden="true">✦</span>
+      <span class="step"><b>02</b> Make it yours</span><span class="dot" aria-hidden="true">✦</span>
+      <span class="step"><b>03</b> Share your design</span>
+    </div>
+    <div class="rules">
+      <p class="big">Share it with the group and tag it #SurpriseMeSTG</p>
+      <p class="small">One surprise per round. Trust it. 😂</p>
+    </div>
+
+    <p class="sr" id="status" role="status" aria-live="polite"></p>
+
+    <section class="result" id="result" tabindex="-1" hidden aria-labelledby="r-type">
+      <div class="r-head">
+        <span class="r-type" id="r-type">Challenge</span>
+        <span class="r-num" id="challenge-number">#001</span>
+      </div>
+      <p class="personality" id="personality"></p>
+      <div class="details" id="details"></div>
+      <div class="twist" id="twist" hidden></div>
+      <div class="p-wrap">
+        <p class="p-label">Your full image prompt · Paste · Generate · Share</p>
+        <p class="p-help">Drop this into your favorite image generator, then post what you make.</p>
+        <p class="prompt" id="prompt" tabindex="-1"></p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-copy" id="copy-prompt" type="button">📋 Copy Prompt</button>
+        <button class="btn btn-again" id="again" type="button">⚄ Surprise Me Again</button>
+        <p class="feedback" id="copy-feedback" hidden></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p class="f1">Surprise Me <b>by STG</b></p>
+    <p class="f2">A Sivad Tamara Graphics (STG) tool for creators who say yes to the surprise.</p>
+    <p class="f3" aria-hidden="true">✦ ✦ ✦</p>
+  </footer>
+</div>
+
+<script>
+const Engine=(()=>{
+const split=s=>s?s.split('|'):[];
+const subj=(names,scenes,person=false)=>split(names).map(name=>({name,scenes:split(scenes),person}));
+const profile=(type,items,real,cartoon,exp,moods,typo,elements,comps,outputs,phrases,palettes)=>({type,items,pools:{realistic:split(real),cartoon:split(cartoon),experimental:split(exp)},moods:split(moods),typography:split(typo),elements:split(elements),compositions:split(comps),outputs:split(outputs),phrases:split(phrases),palettes});
+
+const profiles=[
+profile('FASHION / STREETWEAR',subj('curvy fashion model|streetwear designer|sneaker collector','rooftop at golden hour|downtown crosswalk|minimalist fashion studio',true),
+ 'Magazine editorial|Cinematic realism|Afro-luxe editorial','Fashion Doll 3D|Curvy Streetwear Doll|Urban Chibi|Hyper Cartoon Realism 3D','90s urban|Y2K',
+ 'Confident|Edgy|Unbothered','Chrome 3D|Graffiti|Condensed Sans','Chrome Accents|Spray Paint Mist|Stars|Tag Marks|Light Flares','Full-Body Hero|Streetwear Poster|Off-Center Editorial','Poster|Magazine Cover|Brand Campaign','DRESSED IN CONFIDENCE|STYLE IS THE STATEMENT|WALK LIKE YOU MEAN IT',[0,3,6,11]),
+profile('BEAUTY BRAND',[...subj('serum bottle|lip gloss trio|perfume bottle|hair oil|press-on nail set','white marble vanity|soft-lit product studio'),...subj('makeup artist|esthetician','beauty studio|editorial studio',true)],
+ 'Luxury product photography|Premium commercial photography|Luxury editorial','Glossy 3D Cartoon|Luxury Chibi|High-Gloss Illustration','Glossy modern airbrush art',
+ 'Glamorous|Glowing|Radiant','Luxury Serif|Thin Sans|Handwritten Script','Pearls|Sparkles|Gold Accents|Fresh Florals|Water Droplets','Centered Hero|Advertisement Layout|Symmetrical Luxury','Product Advertisement|Brand Campaign|Social Media Graphic','GLOW ON PURPOSE|SKIN FIRST, ALWAYS|MADE TO SHINE',[4,7,9,12]),
+profile('CREATOR / ENTREPRENEUR',subj('woman entrepreneur|man entrepreneur|content creator|small business owner|group of creators','sunlit home office|creative studio|pop-up shop',true),
+ 'Glossy 3D realism|Magazine editorial|Cinematic realism','Stylized 3D Character|Premium Animated Character|Bold Vector Character|Signature Chibi','Modern pop-art',
+ 'Boss Energy|Focused|Creative','Bold 3D|Condensed Sans|Mixed Typography','Stars|Chrome Accents|Light Streaks|Geometric Shapes|Sticky Notes','Magazine Cover|Editorial Split|Layered Poster','Social Media Graphic|Magazine Cover|Brand Campaign','BUILT IT FROM SCRATCH|OPEN FOR BUSINESS|MY IDEA, MY EMPIRE|SOLD OUT AGAIN',[0,2,6,10]),
+profile('PRODUCT ADVERTISEMENT',subj('tumbler|tote bag|sneakers|hoodie|T-shirt|bucket hat|candle','white commercial studio|colored seamless backdrop'),
+ 'Hyper-realistic 3D|Bold graphic advertising|Premium commercial photography','High-Gloss Illustration','Modern pop-art|Modern bold graphic poster',
+ 'Bold|Playful|Fresh','Bold 3D|Condensed Sans|Retro Bubble','Floating Shapes|Color Splashes|Sparkles|Starburst Badge|Soft Shadows','Product Hero|Floating Elements|Advertisement Layout','Product Advertisement|Social Media Graphic|Website Hero','NEW DROP|ADD TO CART ENERGY|LIMITED RUN',[1,3,5,13]),
+profile('DIGITAL PRODUCT PROMO',subj('digital planner on a tablet|phone app screen|online course dashboard|ebook cover|printable bundle','clean desk setup|floating gradient space'),
+ 'Hyper-realistic 3D|Clean tech mockup|Premium commercial photography','High-Gloss Illustration','Modern pop-art',
+ 'Organized|Inspired|Fresh','Condensed Sans|Bold 3D|Thin Sans','Floating UI Cards|Sparkles|Geometric Shapes|Light Streaks','Device Mockup|Floating Elements|Product Hero','Social Media Graphic|Website Hero|App Promotion','DOWNLOAD THE GLOW-UP|INSTANT ACCESS|YOUR NEXT LEVEL, DIGITIZED',[2,8,10,14]),
+profile('RETRO CULTURE',[...subj('roller skater','roller rink',true),...subj('vinyl DJ','record store',true)],
+ 'Cinematic realism|High-fashion editorial photography','Retro-Modern 3D Cartoon|Airbrush Cartoon|Y2K Cartoon','70s-inspired modern design|80s-inspired modern design|Glossy modern airbrush art|Modern bold graphic poster',
+ 'Nostalgic|Groovy|Fun','Retro Bubble|Airbrush Lettering|Collegiate','Starbursts|Sunset Stripes|Cassette Tapes|Disco Light','Bold Modern Poster|Centered Hero|Badge Layout','Poster|T-Shirt Design|Album Cover','BACK IN MY DAY|STILL GOT THE GROOVE|REWIND THE VIBE',[3,5,13,14]),
+profile('SPORTS HYPE',subj('basketball player|track sprinter|cheer captain','stadium under lights|indoor gym court',true),
+ 'Cinematic realism|Sports photography','Stylized 3D Character|Comic-Inspired 3D|Hyper Cartoon Realism 3D','Glossy modern airbrush art',
+ 'Intense|Victorious|High Energy','Sports Block|Collegiate|Chrome 3D','Motion Streaks|Smoke|Sparks|Stadium Lights','Action Hero|Diagonal Dynamic|Full-Body Hero','Poster|Social Media Graphic|T-Shirt Design','GAME DAY READY|LEAVE IT ON THE FLOOR|EARNED, NOT GIVEN',[1,6,7,11]),
+profile('PARTY / CELEBRATION',[...subj('birthday cake|balloon arch|party favor box','colorful party table|backyard celebration'),...subj('birthday guest|group of best friends','rooftop party|dance floor',true)],
+ 'Glossy 3D realism|High-energy celebration editorial','Signature Chibi|Glossy 3D Cartoon|Cute Mascot Style|Glossy Vinyl-Toy 3D Character|Toy-Like 3D|High-Gloss Illustration','Modern pop-art',
+ 'Joyful|High Energy|Festive','Puffy 3D|Retro Bubble|Handwritten Script','Balloons|Confetti|Sparkles|Streamers|Stars','Centered Hero|Floating Elements|Invitation Layout','Invitation|Social Media Graphic|T-Shirt Design',"LET’S CELEBRATE|ANOTHER LAP AROUND THE SUN|IT’S A WHOLE MOOD",[0,4,8,9]),
+profile('FOOD & BEVERAGE COMMERCIAL',subj('stacked burger|iced coffee|mason jar of sweet tea|peach cobbler|pink lemonade|fried chicken sandwich','sleek marble table|bright commercial studio|summer patio'),
+ 'Food photography|Premium commercial photography|Hyper-realistic 3D','High-Gloss Illustration','Modern bold graphic poster',
+ 'Mouthwatering|Fresh|Cozy','Retro Bubble|Condensed Sans|Handwritten Script','Splashes|Rising Steam|Ice Cubes|Fresh Herbs|Citrus Slices','Product Hero|Floating Elements|Menu Layout','Product Advertisement|Menu Board|Social Media Graphic','MADE FRESH DAILY|ONE BITE AND DONE|SIP SIP HOORAY',[3,5,12,13]),
+profile('LUXURY LIFESTYLE',[...subj('designer handbag|luxury watch|champagne tower','penthouse lounge|marble boutique'),...subj('woman in elegant evening wear','penthouse lounge|yacht deck at sunset',true)],
+ 'Luxury editorial|Cinematic realism|Premium commercial photography','Luxury Chibi|Cartoon Editorial|High-Gloss Illustration','Modern bold graphic poster',
+ 'Elegant|Sophisticated|Magnetic','Luxury Serif|Thin Sans|Handwritten Script','Gold Accents|Pearls|Silk Fabric|Soft Bokeh','Symmetrical Luxury|Centered Hero|Editorial Split','Magazine Cover|Brand Campaign|Poster','QUIET LUXURY|SOFT LIFE ONLY|ELEVATED BY DESIGN',[7,9,11,12]),
+profile('MUSIC / ENTERTAINMENT',subj('R&B singer|DJ|jazz saxophonist','concert stage|recording studio|neon-lit lounge',true),
+ 'Cinematic realism|Concert photography','Comic-Inspired 3D|Urban Chibi|Airbrush Cartoon|Premium Animated Character','Neon cyber|Glossy modern airbrush art',
+ 'Soulful|Electric|Smooth','Neon Tube|Airbrush Lettering|Chrome 3D','Sound Waves|Stage Lights|Smoke|Music Notes','Album Cover Layout|Off-Center Editorial|Spotlight Hero','Album Cover|Concert Poster|Social Media Graphic','TURN IT UP|SOUNDTRACK OF THE NIGHT|FEEL THE BASS',[2,6,10,11]),
+profile('TRAVEL / DESTINATION',[...subj('solo traveler|couple on vacation','tropical beach|cobblestone European street|desert resort',true),...subj('designer luggage set','airport window at sunrise')],
+ 'Travel photography|Cinematic realism','Stylized 3D Character|Premium Animated Character|Retro-Modern 3D Cartoon','Modern bold graphic poster',
+ 'Adventurous|Relaxed|Dreamy','Handwritten Script|Retro Bubble|Condensed Sans','Passport Stamps|Palm Leaves|Sun Flare|Bold Color Framess','Postcard Layout|Wide Scenic|Centered Hero','Poster|Postcard|Social Media Graphic','AUTO-REPLY: ON VACATION|PASSPORT READY|WISH YOU WERE HERE',[3,5,8,14]),
+profile('SURREAL CREATIVE CONCEPT',subj('teacup holding an ocean|staircase into the clouds|giant floating peach','pastel dreamscape|starlit desert'),
+ 'Hyper-realistic 3D|Cinematic realism','High-Gloss Illustration','Surreal fusion|Hyper-cartoon realism',
+ 'Dreamy|Mysterious|Whimsical','Futuristic|Thin Sans|Bold 3D','Floating Islands|Clouds|Glowing Orbs|Butterflies','Floating Elements|Centered Hero|Wide Scenic','Poster|Album Cover|Art Print','DREAM IN COLOR|IMAGINE THAT|NOTHING IS ORDINARY',[2,4,8,10]),
+profile('CHRISTMAS / WINTER',[...subj('stack of wrapped gifts|hot cocoa mug|ornament collection|gingerbread house','decorated living room by the tree|snowy window ledge|holiday market stall'),...subj('family in matching holiday pajamas|woman in a festive holiday outfit','decorated living room by the tree|snowy city street with holiday lights',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Festive|Magical|Joyful','Handwritten Script|Puffy 3D|Luxury Serif|Retro Bubble','Snowflakes|Twinkle Lights|Ribbons|Pine Branches|Ornaments','Centered Hero|Wreath Frame|Floating Elements','Greeting Card|Social Media Graphic|T-Shirt Design|Poster','’TIS THE SEASON|MERRY EVERYTHING|HOME FOR THE HOLIDAYS|SLEIGH ALL DAY',[]),
+profile('FALL / THANKSGIVING',[...subj('pumpkin spice latte|pumpkin patch display|apple pie','cozy autumn porch|harvest farmers market|modern dining table'),...subj('family at the Thanksgiving table|woman in a cozy fall sweater','modern dining room|cozy autumn porch',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Cozy|Grateful|Warm','Handwritten Script|Collegiate|Retro Bubble','Falling Leaves|Pumpkins|Wheat Bundles|Candlelight','Centered Hero|Wreath Frame|Editorial Split','Greeting Card|Social Media Graphic|T-Shirt Design|Poster','FALL INTO IT|HELLO PUMPKIN|GATHER AROUND|THANKFUL HEART',[]),
+profile('HALLOWEEN',[...subj('jack-o’-lantern|candy bucket|witch hat','spooky front porch|moonlit pumpkin patch'),...subj('friends in Halloween costumes|woman in a cute witch costume','neighborhood block party|spooky front porch',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Spooky|Mischievous|Playful','Retro Bubble|Puffy 3D|Bold 3D|Neon Tube','Bats|Glowing Pumpkins|Candy Corn|Full Moon|Spider Webs','Centered Hero|Floating Elements|Spotlight Hero','Poster|Social Media Graphic|T-Shirt Design|Invitation','SPOOKY SEASON|TRICK OR TREAT YOURSELF|BOO, Y’ALL',[]),
+profile('SPRING / EASTER',[...subj('spring tulip bouquet|Easter basket|pastel eggs in a nest','garden table in full bloom|sunny meadow'),...subj('family in Easter outfits|woman in a floral sundress','church lawn in spring|garden in full bloom',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Fresh|Cheerful|Blooming','Handwritten Script|Retro Bubble|Puffy 3D','Tulips|Butterflies|Pastel Eggs|Cherry Blossoms|Sunbeams','Centered Hero|Floral Frame|Floating Elements','Greeting Card|Social Media Graphic|T-Shirt Design|Poster','HELLO SPRING|FRESH START SEASON|HE IS RISEN|IN FULL BLOOM',[]),
+profile('SUMMER / 4TH OF JULY',[...subj('watermelon slices|cooler of drinks|pool float','backyard cookout|sunny beach|lakefront dock at dusk'),...subj('friends at a summer cookout|man at the grill','backyard cookout|sunny beach',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Sunny|Carefree|Celebratory','Retro Bubble|Collegiate|Bold 3D','Fireworks|Sun Rays|Star Bunting|Palm Leaves|Splashes','Centered Hero|Floating Elements|Group Portrait','Poster|Social Media Graphic|T-Shirt Design|Invitation','SUMMER MODE: ON|RED, WHITE & BOOM|SUN’S OUT, FUN’S OUT',[]),
+profile('VALENTINE’S DAY',[...subj('heart-shaped box of chocolates|red rose bouquet|love letter','candlelit table|pink velvet backdrop'),...subj('couple on a date night','candlelit restaurant|rooftop at night',true),...subj('best friends celebrating Galentine’s','brunch table with flowers',true)],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Signature Chibi|Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|Stylized 3D Character|High-Gloss Illustration','Modern pop-art','Romantic|Sweet|Flirty','Handwritten Script|Luxury Serif|Puffy 3D','Hearts|Rose Petals|Sparkles|Ribbons','Centered Hero|Floating Elements|Editorial Split','Greeting Card|Social Media Graphic|T-Shirt Design|Poster','BE MINE|LOVE IS IN THE AIR|XOXO|LOVE ON PURPOSE',[]),
+profile('WELLNESS / SELF-CARE',[...subj('woman at a rooftop yoga class','rooftop at sunrise',true),...subj('friends at a spa day in plush robes and sheet masks','luxury day spa with a pool',true),...subj('woman journaling in a flower-filled bubble bath','bright marble bathroom with fresh flowers',true),...subj('friends at a colorful smoothie bar','bright juice bar',true),...subj('woman on a morning run','beach boardwalk at sunrise',true),...subj('pilates instructor','sunlit pilates studio',true),...subj('self-care gift box|smoothie bowl|bath bomb collection','sunlit marble counter|bright juice bar')],
+ 'Glossy 3D realism|Modern lifestyle editorial|Cinematic realism','Stylized 3D Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art',
+ 'Glowing|Energized|Refreshed','Handwritten Script','Fresh Flowers|Citrus Slices|Bubbles|Sun Rays|Sparkles|Tropical Leaves','Centered Hero|Editorial Split|Floating Elements','Social Media Graphic|Poster|T-Shirt Design','PROTECT YOUR PEACE|GLOW FROM THE INSIDE OUT|SOFT LIFE SEASON|HEALED AND THRIVING|POUR INTO YOU',[]),
+profile('TECH / FUTURISTIC',subj('smart glasses|wireless earbuds|holographic phone','futuristic lab|neon city skyline'),
+ 'Hyper-realistic 3D|Clean tech mockup','','Futuristic|Neon cyber',
+ 'Innovative|Sleek|Electric','Futuristic|Chrome 3D|Condensed Sans','Neon Glow|Circuit Lines|Light Streaks|Holograms','Product Hero|Floating Elements|Advertisement Layout','App Promotion|Product Advertisement|Website Hero',"TOMORROW, TODAY|UPGRADE EVERYTHING|BUILT FOR WHAT’S NEXT",[1,2,6,10]),
+profile('URBAN EDITORIAL',[...subj('photographer|streetwear creator','graffiti alley|downtown corner store',true),...subj('barber','barbershop',true)],
+ 'Magazine editorial|Cinematic realism|Street photography','Urban Chibi|Cartoon Editorial|Bold Vector Character|Comic-Inspired 3D','90s urban|Graffiti',
+ 'Edgy|Confident|Cool','Graffiti|Condensed Sans|Airbrush Lettering','Tag Marks|Paint Drips|Ink Splashes|Chrome Accents','Off-Center Editorial|Full-Body Hero|Streetwear Poster','Magazine Cover|Poster|Social Media Graphic','CITY RAISED|FRESH OFF THE CHAIR|THE BLOCK IS WATCHING',[0,6,11,13]),
+profile('EDUCATION / TEACHER LIFE',[...subj('classroom teacher|school principal|school counselor|instructional coach|school librarian','bright classroom|school hallway|school library',true),...subj('teacher desk setup|stack of books with an apple|classroom supply caddy','sunny classroom desk|chalkboard backdrop')],
+ 'Magazine editorial|Cinematic realism|Glossy 3D realism','Stylized 3D Character|Premium Animated Character|Signature Chibi|Bold Vector Character|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster',
+ 'Inspiring|Proud|Playful|Determined','Collegiate|Handwritten Script|Bold 3D|Retro Bubble','Pencils|Notebook Doodles|Stars|Apples|Chalk Dust|Paper Airplanes','Centered Hero|Editorial Split|Layered Poster|Full-Body Hero','Social Media Graphic|Poster|T-Shirt Design|Classroom Banner','TEACHING IS MY SUPERPOWER|POWERED BY COFFEE AND LESSON PLANS|CERTIFIED DIFFERENCE MAKER|BELL TO BELL, ALL HEART',[0,1,15,16]),
+profile('SCHOOL SPIRIT / GRADUATION',[...subj('college graduate|drum major|cheer coach','graduation stage|football stadium at homecoming|campus quad',true),...subj('homecoming court','football stadium at homecoming|campus quad',true),...subj('graduation cap|school pennant|letterman jacket','campus quad|trophy case')],
+ 'Cinematic realism|High-energy celebration editorial|Glossy 3D realism','Stylized 3D Character|Signature Chibi|Comic-Inspired 3D|High-Gloss Illustration','Modern bold graphic poster|Modern pop-art',
+ 'Proud|Celebratory|Spirited','Collegiate|Sports Block|Chrome 3D|Handwritten Script','Confetti|Pennant Flags|Stars|Tassels|Glitter|Megaphone Burst','Centered Hero|Full-Body Hero|Diagonal Dynamic|Badge Layout','Poster|T-Shirt Design|Social Media Graphic|Yard Sign','CLASS DISMISSED, FOREVER|SCHOOL PRIDE RUNS DEEP|WE MADE IT|SPIRIT WEEK ALL YEAR',[1,7,15,16]),
+profile('FAMILY REUNION',[...subj('multigenerational family|grandmother with her grandchildren|cousins at a reunion','backyard cookout|city park pavilion|front porch at sunset',true),...subj('stack of reunion T-shirts|family photo wall|grill full of food','backyard cookout|picnic table under string lights')],
+ 'High-energy celebration editorial|Cinematic realism|Glossy 3D realism','Premium Animated Character|Stylized 3D Character|Signature Chibi|Glossy Vinyl-Toy 3D Character|High-Gloss Illustration','Modern bold graphic poster|70s-inspired modern design',
+ 'Joyful|Warm|Nostalgic','Collegiate|Retro Bubble|Handwritten Script|Bold 3D','Family Tree Branches|Balloons|String Lights|Polaroid Frames|Confetti','Group Portrait|Centered Hero|Polaroid Collage','T-Shirt Design|Poster|Social Media Graphic|Invitation','SAME ROOTS, DIFFERENT BRANCHES|THE GANG’S ALL HERE|PASS THE PLATE, NOT THE DRAMA|FAMILY OVER EVERYTHING',[3,5,11,13]),
+profile('FAMILY LOVE',subj('mother and daughter|father and son|grandparents|siblings|young family','cozy living room|kitchen on a Sunday morning|sunny park',true),
+ 'Modern lifestyle editorial|Cinematic realism|Glossy 3D realism','Premium Animated Character|Stylized 3D Character|Signature Chibi|Glossy Vinyl-Toy 3D Character','Modern bold graphic poster|Glossy modern airbrush art',
+ 'Loving|Joyful|Playful','Handwritten Script|Luxury Serif|Retro Bubble','Hearts|Soft Bokeh|Fresh Florals|Sparkles','Group Portrait|Centered Hero|Editorial Split','Greeting Card|Social Media Graphic|Poster|T-Shirt Design','LOVE LIVES HERE|MY FIRST BEST FRIEND|GRANDMA’S HOUSE, GRANDMA’S RULES|HOME IS WHO YOU’RE WITH',[4,8,9,11]),
+profile('FAITH & CHURCH',[...subj('church choir|pastor at the pulpit|first lady in a church hat|praise dancer|usher team','sanctuary with stained glass|church steps on Sunday morning|revival tent',true),...subj('open Bible with a highlighter|church fan|communion table','sanctuary with stained glass|church steps on Sunday morning')],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Stylized 3D Character|Premium Animated Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster','Uplifting|Radiant|Joyful','Luxury Serif','Stained Glass Light|Doves|Soft Rays|Gold Accents|Lilies','Centered Hero|Editorial Split|Layered Poster','Social Media Graphic|T-Shirt Design|Program Cover|Poster','BLESSED AND HIGHLY FAVORED|WALK BY FAITH|PRAYED UP|SUNDAY BEST',[]),
+profile('COMMUNITY EVENTS',[...subj('community organizer|block party DJ|team of volunteers','neighborhood block party|community center|park festival',true),...subj('school supply giveaway table|food drive boxes|bounce house','neighborhood block party|community center|park festival')],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Stylized 3D Character|Premium Animated Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster','Upbeat|Welcoming|Energetic','Bold 3D','Balloons|Bunting Flags|Confetti|Music Notes|Sun Rays','Layered Poster|Centered Hero|Group Portrait','Poster|Social Media Graphic|Yard Sign','BACK-TO-SCHOOL BASH|COMMUNITY OVER EVERYTHING|BLOCK PARTY SATURDAY|IT TAKES A VILLAGE',[]),
+profile('SISTERHOOD & GREEK LIFE',[...subj('sorority sisters|line sisters|chapter president','campus yard|step show stage|brunch table with flowers',true),...subj('sorority sisters at a gala','gala ballroom',true),...subj('pearl necklace and roses|stack of service-project care packages','brunch table with flowers|campus yard')],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Stylized 3D Character|Premium Animated Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster','Proud|Elegant|Celebratory','Luxury Serif','Pearls|Roses|Ivy Leaves|Stars|Confetti','Group Portrait|Centered Hero|Editorial Split','Social Media Graphic|T-Shirt Design|Invitation|Poster','SISTERHOOD FOR LIFE|SERVICE, SCHOLARSHIP, SISTERHOOD|CHAPTER PROUD|FOREVER BONDED',[]),
+profile('CAREER & PROFESSIONAL',[...subj('nurse in navy scrubs','bright hospital hallway',true),...subj('attorney','courthouse steps',true),...subj('realtor','front of a modern home',true),...subj('hairstylist','luxury hair salon',true),...subj('engineer','modern office',true),...subj('dentist','modern dental office',true)],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Stylized 3D Character|Premium Animated Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster','Confident|Trustworthy|Accomplished','Condensed Sans','Clean Geometric Lines|Light Streaks|Stars|Gold Accents','Editorial Split|Centered Hero|Layered Poster','Business Card Design|Social Media Graphic|Poster','BOOK YOUR APPOINTMENT|NOW HIRING GREATNESS|EXPERTISE YOU CAN TRUST|CLIENTS FIRST',[]),
+profile('PATCHES & STICKERS',[...subj('woman with a confident pose|classroom teacher|DJ|best friends|barber','an isolated die-cut design',true),...subj('iced coffee cup|lipstick|high-top sneaker|cupcake|boombox|stack of books','an isolated die-cut design')],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Stylized 3D Character|Premium Animated Character|Signature Chibi|Glossy 3D Cartoon|High-Gloss Illustration','Modern pop-art|Modern bold graphic poster','Playful|Bold|Sassy','Bold 3D','Stars|Sparkles|Hearts|Lightning Bolts|Flowers','Badge Layout|Centered Hero','Chenille Patch|Embroidered Patch|Die-Cut Sticker|Sticker Design','CERTIFIED BADDIE|TEACHER MODE|STAY BLESSED|NO DRAMA|GOOD HAIR DAY|EXTRA AS ALWAYS',[]),
+profile('ANTHROPOMORPHIC OBJECTS',subj('coffee cup|sneaker|cupcake|stack of books|school bus|red apple|pair of sunglasses|lipstick|boombox|donut|smartphone|tube of lip gloss|takeout box|alarm clock|pumpkin|ice cream cone|backpack|taco|teapot|houseplant','bright color-blocked studio|busy city sidewalk|kitchen counter|classroom desk|candy-colored dreamscape|rooftop party|beach boardwalk|cozy living room'),
+ 'Hyper-realistic 3D|Glossy 3D realism','Glossy 3D Cartoon|Glossy Vinyl-Toy 3D Character|High-Gloss Illustration|Hyper Cartoon Realism 3D|Stylized 3D Character','Modern pop-art',
+ 'Sassy|Hilarious|Confident','Puffy 3D','Sparkles|Confetti|Stars|Comic Pop Bursts|Floating Shapes|Splashes','Centered Hero|Floating Elements|Diagonal Dynamic|Bold Modern Poster','Social Media Graphic|Poster|T-Shirt Design|Sticker Design|Greeting Card','I WOKE UP LIKE THIS|MAIN CHARACTER ENERGY|DON’T TALK TO ME BEFORE COFFEE|TOO COOL FOR SCHOOL|SWEET BUT SASSY|STAY GOLDEN|EXTRA, AND PROUD',[]),
+profile('JOKES & HUMOR',[...subj('woman texting “I’m 5 minutes away” while still in her bonnet and robe','bathroom with a lit vanity mirror',true),...subj('auntie guarding the cookout plates','backyard cookout',true),...subj('man stuck in a meeting that should have been an email','modern conference room',true),...subj('friends blowing up the group chat at 2 a.m.','bright split-screen of bedrooms lit by phone screens',true),...subj('big mama giving the “don’t make me come in there” look','grandma’s kitchen doorway',true),...subj('teacher in a standoff with a jammed copier','school copy room',true),...subj('man taking gym selfies instead of working out','modern gym',true),...subj('woman juggling three cups of coffee on a Monday morning','busy office desk',true),...subj('uncle owning the dance floor at the cookout','backyard cookout',true),...subj('woman leaving the beauty supply store with a full basket','beauty supply store aisle',true),...subj('man building furniture with way too many leftover screws','living room covered in boxes',true),...subj('friends at brunch pretending not to see the check','bright brunch spot',true),...subj('baker proudly holding a tray of donuts','colorful bakery counter',true),...subj('man tearing the couch apart looking for the TV remote','living room couch',true),...subj('woman protecting her snacks from everyone in the house','kitchen pantry',true),...subj('friends arguing about who’s the better cook','family kitchen',true)],
+ 'Glossy 3D realism|Cinematic realism|Magazine editorial','Hyper Cartoon Realism 3D|Stylized 3D Character|Premium Animated Character|Glossy 3D Cartoon|Signature Chibi','Modern pop-art',
+ 'Hilarious|Sassy|Over-the-Top','Puffy 3D','Comic Pop Bursts|Motion Lines|Sweat Drops|Sparkles|Question Marks|Little Hearts','Centered Hero|Editorial Split|Reaction Close-Up','Social Media Graphic|Poster|T-Shirt Design|Sticker Design|Greeting Card','LOL',[]),
+profile('TYPOGRAPHY ART',subj('dimensional lettering','clean studio backdrop|colorful seamless backdrop|painted city wall|tabletop flat lay|gradient sky with soft clouds|glossy reflective floor'),
+ 'Hyper-realistic 3D|Premium commercial photography|Glossy 3D realism','High-Gloss Illustration|Glossy 3D Cartoon','Modern pop-art|Modern bold graphic poster',
+ 'Bold|Playful|Luxe|Fun','Bold 3D','Sparkles|Confetti|Floating Shapes|Splashes|Ribbons|Stars|Light Flares','Centered Hero|Floating Elements|Stacked Type Layout','Poster|Social Media Graphic|T-Shirt Design|Wall Art Print|Sticker Sheet','SLAY ALL DAY|HELLO GORGEOUS|BOSS MOVES|GOOD ENERGY ONLY|CREATE|GLOW|LOVE|JOY|BLESSED|DREAM BIG|STAY HUMBLE|HUSTLE|TEACH|FAMILY|WEEKEND|NO DAYS OFF|BE KIND|SHINE',[]),
+profile('BRAND CAMPAIGN',[...subj('fashion designer|business owner','brand showroom|creative studio',true),...subj('T-shirt|hoodie|tote bag','editorial studio')],
+ 'Bold graphic advertising|Afro-luxe editorial|Magazine editorial','Fashion Doll 3D|Stylized 3D Character|Premium Animated Character|Bold Vector Character|High-Gloss Illustration','Modern pop-art',
+ 'Confident|Creative|Bold','Condensed Sans|Mixed Typography|Bold 3D','Geometric Shapes|Paint Swipes|Stars|Gold Accents','Billboard Composition|Editorial Split|Social Campaign Layout','Brand Campaign|Billboard|Social Media Graphic','MY NAME IS THE LABEL|MADE TO BE NOTICED|SAY IT WITH YOUR CHEST',[0,2,7,11])
+];
+const YOUTH=[
+ ['EDUCATION / TEACHER LIFE','smiling student at a desk|group of students working together|teen student giving a class presentation',''],
+ ['SCHOOL SPIRIT / GRADUATION','high school cheerleader|high school basketball player|group of high school seniors|teen homecoming queen|teen homecoming king',''],
+ ['SPORTS HYPE','teen track athlete|kids youth basketball team|kid football player',''],
+ ['FAMILY LOVE','father and his little girl|mother and her teenage son|kids having a pillow fight',''],
+ ['FAMILY REUNION','kids running a three-legged race|teen cousins taking a group selfie',''],
+ ['PARTY / CELEBRATION','birthday girl blowing out candles|birthday boy with a giant cake|kids at a birthday party','colorful backyard party|bright party room filled with balloons'],
+ ['CHRISTMAS / WINTER','kids opening gifts|kids in matching holiday pajamas','decorated living room by the tree'],
+ ['HALLOWEEN','kids in Halloween costumes trick-or-treating','neighborhood block party|spooky front porch'],
+ ['SPRING / EASTER','kids at an Easter egg hunt|little girl in an Easter dress','garden in full bloom|church lawn in spring'],
+ ['SUMMER / 4TH OF JULY','kids running through a sprinkler|teens at a pool party','sunny backyard|community pool'],
+ ['FAITH & CHURCH','youth choir|teen praise dancer',''],
+ ['COMMUNITY EVENTS','kids at the school supply giveaway|teen volunteers','']
+];
+for(const [t,names,sc] of YOUTH){
+  const p=profiles.find(x=>x.type===t);if(!p)continue;
+  const scenes=sc||[...new Set(p.items.filter(x=>x.person).flatMap(x=>x.scenes))].join('|')||[...new Set(p.items.flatMap(x=>x.scenes))].join('|');
+  p.items.push(...subj(names,scenes,true));
+}
+
+const palettes=[
+ /* STG */      ['Hot Pink','Kelly Green','Gold','Black'],
+ /* jewel */    ['Emerald','Ruby Red','Gold','Black'],
+ /* jewel */    ['Sapphire','Amethyst','Gold','Ivory'],
+ /* jewel */    ['Deep Teal','Magenta','Gold','Cream'],
+ /* royal */    ['Royal Purple','Gold','Hot Pink','Black'],
+ /* warm */     ['Burnt Orange','Mustard','Deep Teal','Cream'],
+ /* warm */     ['Tangerine','Fuchsia','Turquoise','White'],
+ /* sunset */   ['Coral','Sunset Orange','Hot Pink','Gold'],
+ /* tropical */ ['Coral','Turquoise','Sunshine Yellow','White'],
+ /* primary */  ['Fire Red','Cobalt Blue','Sunshine Yellow','White'],
+ /* primary */  ['Cobalt Blue','Lemon Yellow','Coral','White'],
+ /* rich earth */['Terracotta','Olive Green','Mustard','Cream'],
+ /* rich earth */['Chocolate','Caramel','Burnt Orange','Cream'],
+ /* candy */    ['Bubblegum Pink','Mint','Lavender','Lemon Yellow'],
+ /* candy */    ['Peach','Aqua','Hot Pink','White'],
+ /* luxe */     ['Champagne Gold','Black','Blush Pink','Ivory'],
+ /* luxe */     ['Gold','Black','Hot Pink','Chrome Silver'],
+ /* luxe */     ['Emerald','Champagne Gold','Ivory','Black'],
+ /* bold */     ['Magenta','Cobalt Blue','Tangerine','White'],
+ /* bold */     ['Teal','Tangerine','Magenta','White'],
+ /* romantic */ ['Ruby Red','Hot Pink','Gold','White'],
+ /* school */   ['Kelly Green','Gold','White','Black'],
+ /* school */   ['Navy','Crimson','Gold','White'],
+ /* school */   ['Royal Blue','Orange','White','Black'],
+ /* cool */     ['Turquoise','Royal Purple','Lime','White'],
+ /* neon */     ['Hot Pink','Electric Lime','Black','White'],
+ /* neon */     ['Electric Blue','Neon Orange','Black','White']
+];
+const colors={'Hot Pink':'#FF3E88','Kelly Green':'#22C579',Gold:'#E2B33C',Black:'#0A0A0B',White:'#FAFAF9',Emerald:'#00A86B','Ruby Red':'#C8103F',Sapphire:'#1450C8',Amethyst:'#9B4DCA',Ivory:'#FFFBEF','Deep Teal':'#007C80',Magenta:'#E3138E',Cream:'#FFF1D6','Royal Purple':'#6A2BD9','Burnt Orange':'#D9601A',Mustard:'#E8B021',Tangerine:'#FF8A1F',Fuchsia:'#E52DBE',Turquoise:'#1FD1C4',Coral:'#FF6F61','Sunset Orange':'#FF7A2F','Sunshine Yellow':'#FFD21F','Fire Red':'#E8261B','Cobalt Blue':'#1F4FD1','Lemon Yellow':'#FFEB3B',Terracotta:'#C8553D','Olive Green':'#6B8E23',Chocolate:'#5A3221',Caramel:'#C27C3A','Bubblegum Pink':'#FF7DC0',Mint:'#5EF2B5',Lavender:'#B98CFF',Peach:'#FFB38A',Aqua:'#21E1D2','Champagne Gold':'#E6C77A','Blush Pink':'#F7A8C0','Chrome Silver':'#D9DEE4',Teal:'#00A6A6',Navy:'#16234F',Cyan:'#00E1F0','Pumpkin Orange':'#FF7518','Eucalyptus Green':'#4FB286','Pearl White':'#F8F4EE',Sand:'#F2D3A0',Amber:'#FFB000',Plum:'#8E2C75','Pine Green':'#0B6E3F','Rose Gold':'#E0A98F','Icy Blue':'#9FDCFF','Deep Red':'#B01E23','Neon Green':'#39FF6B',Crimson:'#C8102E','Royal Blue':'#2251D8',Orange:'#FF7F11',Lime:'#A6E22E','Electric Lime':'#C8FF2E','Electric Blue':'#1A6BFF','Neon Orange':'#FF6A13'};
+const effects={'Chrome 3D':['chrome','mirror-polished silver'],'Graffiti':['spray-paint texture','thick outline'],'Condensed Sans':['crisp drop shadow','embossed'],'Luxury Serif':['gold foil','embossed'],'Thin Sans':['gold foil','glossy enamel'],'Handwritten Script':['gold foil','embossed'],'Bold 3D':['extruded 3D','gradient'],'Mixed Typography':['drop shadow','thick outline'],'Retro Bubble':['puffy','thick outline'],'Airbrush Lettering':['airbrushed','soft glow'],'Collegiate':['chenille texture','thick outline'],'Sports Block':['thick outline','extruded 3D'],'Puffy 3D':['puffy inflated','gradient'],'Neon Tube':['neon','soft glow'],'Futuristic':['glow','chrome']};
+const personalities=['Oh, you’re gonna have fun with this one. 😏','Hmm. Interesting choice, universe. 👀','Go ahead and make it look easy.','This one has STG written all over it. 💗💚','Bet you can’t make this one boring.','Fresh assignment, hot off the press. 🔥','Somebody’s about to show out. ✨'];
+const skin=['deep brown','rich brown','warm caramel','light brown'];
+const hairW=['long locs','a sleek low bun','a glossy silk press','knotless braids','a voluminous afro','a defined twist-out','a short tapered cut','shoulder-length curls'];
+const hairM=['a clean fade','short locs','360 waves','a low cut with a sharp line-up','short twists','neat cornrows','a bald head with a groomed beard'];
+const bodiesW=['a curvy build','a slim build','a plus-size build','an athletic build'];
+const bodiesM=['a slim build','a broad build','a plus-size build','an athletic build'];
+function genderOf(name){
+  if(/woman|women|mother|daughter|first lady|sisters|girl|curvy fashion model|esthetician|cheer captain|auntie|big mama/.test(name))return 'woman';
+  if(/uncle/.test(name))return 'man';
+  if(/\bman\b|\bmen\b|father|\bson\b/.test(name))return 'man';
+  if(/barber/.test(name))return Math.random()<.8?'man':'woman';
+  return Math.random()<.5?'man':'woman';
+}
+const FUNNY={
+ 'FASHION / STREETWEAR':'MY OUTFIT HAS A BETTER SOCIAL LIFE THAN ME|DRIP CHECK: PASSED|I CAME, I SLAYED, I LEFT EARLY',
+ 'BEAUTY BRAND':'GLOW NOW, NAP LATER|BEAT FACE, TIRED SOUL|MY SKINCARE ROUTINE HAS A ROUTINE',
+ 'CREATOR / ENTREPRENEUR':'CEO OF FIGURING IT OUT|47 TABS OPEN AND A DREAM|SELF-EMPLOYED, SELF-CAFFEINATED',
+ 'PRODUCT ADVERTISEMENT':'YOUR CART CALLED. IT MISSES YOU.|IMPULSE BUY APPROVED|YOU NEED THIS. TRUST US.',
+ 'DIGITAL PRODUCT PROMO':'ORGANIZED CHAOS, NOW DOWNLOADABLE|MY PLANNER HAS A PLANNER|CLICK, DOWNLOAD, GLOW',
+ 'RETRO CULTURE':'HOME BEFORE THE STREETLIGHTS|MY PLAYLIST IS OLDER THAN YOU|I STILL REWIND WITH A PENCIL',
+ 'SPORTS HYPE':'COACH SAID HUSTLE, SO I JOGGED|POWERED BY SNACKS AND COMPETITION|BENCH WARMER, CHAMPION HEART',
+ 'PARTY / CELEBRATION':'I CAME FOR THE CAKE|DANCE FLOOR CERTIFIED|SNACKS FIRST, SPEECHES LATER',
+ 'FOOD & BEVERAGE COMMERCIAL':'SECONDS ARE A LIFESTYLE|I’M ONLY HERE FOR THE SIDES|CALORIES DON’T COUNT ON WEEKENDS',
+ 'LUXURY LIFESTYLE':'EXPENSIVE TASTE, COUPON HABITS|CHAMPAGNE TASTE, SWEET TEA BUDGET|LUXURY IS A STATE OF MIND',
+ 'MUSIC / ENTERTAINMENT':'I ONLY KNOW THE CHORUS|OFF-KEY BUT CONFIDENT|MY NEIGHBORS LOVE MY PLAYLIST',
+ 'TRAVEL / DESTINATION':'MY SUITCASE IS 90% SHOES|VACATION MODE: NO REPLIES|I NEED A VACATION FROM MY VACATION',
+ 'SURREAL CREATIVE CONCEPT':'LOGIC LEFT THE CHAT|DAYDREAMING IS MY CARDIO|MY BRAIN HAS TOO MANY TABS OPEN',
+ 'CHRISTMAS / WINTER':'JINGLE ALL THE WAY TO THE BUFFET|ON THE NICE LIST (MOSTLY)|I’M HERE FOR THE COOKIES',
+ 'FALL / THANKSGIVING':'SWEATER WEATHER, SNACK WEATHER|HERE FOR THE MAC AND CHEESE|PUMPKIN SPICE AND EVERYTHING NICE',
+ 'HALLOWEEN':'SPOOKY BUT MAKE IT CUTE|HERE FOR THE CANDY|RESTING WITCH FACE',
+ 'SPRING / EASTER':'SOME BUNNY LOVES YOU|EGG-CEPTIONALLY CUTE|ALLERGIES BUT MAKE IT CUTE',
+ 'SUMMER / 4TH OF JULY':'I CAME FOR THE POTATO SALAD|SPF AND SNACKS|GRILL MASTER IN TRAINING',
+ 'VALENTINE’S DAY':'I LIKE YOU MORE THAN PIZZA|CUPID IS MY HYPE MAN|SINGLE AND THRIVING',
+ 'WELLNESS / SELF-CARE':'MY SELF-CARE IS A NAP|PROTECTING MY PEACE AND MY SNACKS|NAMASTE IN BED',
+ 'TECH / FUTURISTIC':'LOW BATTERY, HIGH STANDARDS|DID YOU TRY TURNING IT OFF AND ON?|MY PHONE KNOWS TOO MUCH',
+ 'EDUCATION / TEACHER LIFE':'RUNNING ON COFFEE AND HALL PASSES|I SAID WHAT I SAID, AND I’LL SAY IT AGAIN TOMORROW|TEACHER BY DAY, NAP EXPERT BY NIGHT',
+ 'SCHOOL SPIRIT / GRADUATION':'I SURVIVED GROUP PROJECTS|DEGREE: EARNED. SLEEP: PENDING.|LOUDER THAN THE BAND',
+ 'FAMILY REUNION':'WHO’S PLAYING SPADES?|DON’T ASK MY NAME, JUST HUG ME|AUNTIE SAID BRING A DISH',
+ 'FAMILY LOVE':'I GET IT FROM MY MAMA|GRANDMA’S FAVORITE (DON’T TELL)|BUILT-IN BEST FRIEND, BUILT-IN BOTHER',
+ 'URBAN EDITORIAL':'MY BARBER IS MY THERAPIST|LINE-UP SHARPER THAN MY OPINIONS|CORNER STORE CERTIFIED',
+ 'FAITH & CHURCH':'I CAME FOR THE SERMON, STAYED FOR THE REPAST|CHURCH FAN CERTIFIED|PASTOR SAID ONE MORE SONG',
+ 'COMMUNITY EVENTS':'COME FOR THE FOOD, STAY FOR THE FUN|THE DJ TAKES NO REQUESTS|FREE FOOD, ENOUGH SAID',
+ 'SISTERHOOD & GREEK LIFE':'MY SISTERS ARE MY HYPE TEAM|BRUNCH, SERVICE, REPEAT|STROLLING INTO THE WEEKEND',
+ 'CAREER & PROFESSIONAL':'I’M NOT BOSSY, I’M THE BOSS|WILL WORK FOR COFFEE|MY JOB IS MY CARDIO',
+ 'PATCHES & STICKERS':'SNACK FIRST, TALK LATER|PETTY BUT PRETTY|BUSY BEING FABULOUS',
+ 'ANTHROPOMORPHIC OBJECTS':'I’M NOT LAZY, I’M ON LOW BATTERY|HOT AND READY|STILL HAVEN’T HAD MY COFFEE|I’M A SNACK, LITERALLY',
+ 'JOKES & HUMOR':'LOL',
+ 'TYPOGRAPHY ART':'BUT FIRST, NAPS|SNACKS ARE MY LOVE LANGUAGE|I’M NOT LOUD, I’M EXPRESSIVE|SARCASM LOADING…',
+ 'BRAND CAMPAIGN':'BUY IT BEFORE YOUR FRIEND DOES|IT’S GIVING SOLD OUT|WE MADE IT, YOU WEAR IT'
+};
+const INFO={
+ 'FASHION / STREETWEAR':['STYLE IN 3 STEPS','Start with one statement piece','Match your shoes to the vibe','Tailoring makes it look expensive'],
+ 'BEAUTY BRAND':['GLOW ROUTINE 101','Cleanse','Moisturize','Wear SPF every day'],
+ 'CREATOR / ENTREPRENEUR':['3 KEYS TO GROWING A BRAND','Post consistently','Know your audience','Tell your story'],
+ 'PRODUCT ADVERTISEMENT':['WHY YOU’LL LOVE IT','Built to last','Easy to clean','Made for everyday use'],
+ 'DIGITAL PRODUCT PROMO':['HOW IT WORKS','Buy it','Download instantly','Use it on any device'],
+ 'RETRO CULTURE':['THE GROOVE TIMELINE','1970s: Disco fever','1980s: Hip-hop rises','1990s: R&B golden era'],
+ 'SPORTS HYPE':['GAME DAY CHECKLIST','Hydrate','Warm up','Trust your training'],
+ 'PARTY / CELEBRATION':['PARTY PLANNING 1-2-3','Pick the theme','Send invites early','Plan the playlist'],
+ 'FOOD & BEVERAGE COMMERCIAL':['MADE THE RIGHT WAY','Fresh ingredients','Cooked to order','Served hot'],
+ 'LUXURY LIFESTYLE':['THE LUXE LIST','Quality over quantity','Invest in timeless pieces','Care for what you own'],
+ 'MUSIC / ENTERTAINMENT':['BEFORE THE SHOW','Charge your phone','Stay hydrated','Learn the words'],
+ 'TRAVEL / DESTINATION':['PACK SMART','Roll, don’t fold','Bring a portable charger','Keep your passport handy'],
+ 'SURREAL CREATIVE CONCEPT':['HOW TO DAYDREAM','Unplug','Look up','Let your mind wander'],
+ 'CHRISTMAS / WINTER':['HOLIDAY PREP LIST','Wrap the gifts','Plan the menu','Send the cards'],
+ 'FALL / THANKSGIVING':['THANKSGIVING GAME PLAN','Thaw the turkey early','Assign the sides','Save room for pie'],
+ 'HALLOWEEN':['HALLOWEEN SAFETY TIPS','Carry a flashlight','Walk in groups','Check candy before eating'],
+ 'SPRING / EASTER':['SPRING RESET','Open the windows','Declutter one room','Plant something'],
+ 'SUMMER / 4TH OF JULY':['SUMMER SAFETY','Wear sunscreen','Drink water','Never swim alone'],
+ 'VALENTINE’S DAY':['DATE NIGHT IDEAS','Cook together','Take a dance class','Write a love note'],
+ 'WELLNESS / SELF-CARE':['SELF-CARE BASICS','Drink water','Sleep 7–9 hours','Move your body'],
+ 'TECH / FUTURISTIC':['STAY SECURE ONLINE','Use strong passwords','Turn on 2-step verification','Keep your apps updated'],
+ 'EDUCATION / TEACHER LIFE':['3 HABITS OF STRONG STUDENTS','Read every day','Ask questions','Turn work in on time'],
+ 'SCHOOL SPIRIT / GRADUATION':['GRAD DAY CHECKLIST','Cap and gown','Tickets for family','Tissues for Mom'],
+ 'FAMILY REUNION':['REUNION CHECKLIST','Book the venue','Order the shirts','Assign the dishes'],
+ 'FAMILY LOVE':['FAMILY TIME IDEAS','Game night','Sunday dinner','Phone-free walks'],
+ 'URBAN EDITORIAL':['FRESH CUT CARE','Book every 2 weeks','Moisturize your scalp','Sleep on a silk pillowcase'],
+ 'FAITH & CHURCH':['SUNDAY CHECKLIST','Bring your Bible','Invite a friend','Wear your Sunday best'],
+ 'COMMUNITY EVENTS':['EVENT HIGHLIGHTS','Free food','Live music','Fun for the whole family'],
+ 'SISTERHOOD & GREEK LIFE':['CHAPTER EVENTS','Service project','Step show','Founders’ Day brunch'],
+ 'CAREER & PROFESSIONAL':['WHY CHOOSE US','Licensed experts','Fast, friendly service','Real results'],
+ 'PATCHES & STICKERS':['STICKER CARE','Apply to a clean surface','Press firmly','Avoid the dishwasher'],
+ 'ANTHROPOMORPHIC OBJECTS':['HOW TO HAVE A GOOD DAY','Drink your water','Stretch it out','Laugh at least once'],
+ 'JOKES & HUMOR':['HOW TO SURVIVE MONDAY','Coffee','More coffee','Pretend it’s Friday'],
+ 'TYPOGRAPHY ART':['FONT PAIRING 101','Pair a script with a bold sans','Use two fonts, max','Make one word the hero'],
+ 'BRAND CAMPAIGN':['WHY BRANDS WIN','Clear message','Consistent look','Real connection']
+};
+const VIBES={
+ 'Urban':{dir:'gritty-cool street energy with bold contrast, rich textures and real attitude',moods:'Street-smart|Unbothered|Confident',typo:'Graffiti|Airbrush Lettering|Chrome 3D',el:'Spray Paint Mist|Tag Marks|Neon Signage',fam:[.45,.3]},
+ 'Edgy':{dir:'sharp, daring and high-contrast with dramatic shadows and an unexpected angle',moods:'Fierce|Rebellious|Electric',typo:'Chrome 3D|Condensed Sans|Graffiti',el:'Lightning Bolts|Neon Glow|Glass Shards',fam:[.45,.3]},
+ 'Professional':{dir:'polished and powerful with bold color blocking, crisp high-end lighting and a confident, organized layout',moods:'Confident|Powerful|Accomplished',typo:'Condensed Sans|Bold 3D|Luxury Serif',el:'Clean Geometric Lines|Subtle Gradient Panels',fam:[.75,.2]},
+ 'Classy':{dir:'luxe, high-end elegance with rich jewel tones, glossy satin, gold details and dramatic glamour lighting',moods:'Elegant|Magnetic|Regal',typo:'Luxury Serif|Handwritten Script|Chrome 3D',el:'Gold Foil Details|Pearls|Satin Ribbon',fam:[.75,.2]},
+ 'Funny':{dir:'playful and comedic with expressive, flattering faces, punchy color and one clear visual joke',moods:'Hilarious|Cheeky|Silly',typo:'Puffy 3D|Retro Bubble|Bold 3D',el:'Comic Pop Bursts|Doodle Marks|Sparkles',fam:[.3,.55]},
+ 'Informative':{dir:'bold and helpful like a premium magazine infographic, with big punchy headers, bright color blocks and easy-to-scan text',moods:'Upbeat|Bold|Confident',typo:'Condensed Sans|Bold 3D|Collegiate',el:'Clean Icons|Numbered Badges|Arrow Callouts',fam:[.55,.35]},
+ 'Glam':{dir:'high-shine glamour with glossy highlights, sparkle and red-carpet lighting',moods:'Glamorous|Radiant|Show-Stopping',typo:'Chrome 3D|Luxury Serif|Handwritten Script',el:'Diamond Sparkles|Gold Accents|Light Flares',fam:[.55,.35]},
+ 'Playful':{dir:'bright, bouncy and fun with candy-colored shapes and lighthearted energy',moods:'Joyful|Bubbly|Lighthearted',typo:'Puffy 3D|Retro Bubble|Bold 3D',el:'Confetti|Floating Bubbles|Squiggles',fam:[.3,.55]}
+};
+for(const k in VIBES){const v=VIBES[k];v.moods=split(v.moods);v.typo=split(v.typo);v.el=split(v.el);}
+const PALS={
+ 'FASHION / STREETWEAR':'Hot Pink,Tangerine,Royal Purple,Gold|Cobalt Blue,Fire Red,Sunshine Yellow,Black|Emerald,Hot Pink,Lime,Black|Magenta,Electric Blue,Lime,White|Ruby Red,Royal Purple,Hot Pink,Gold',
+ 'URBAN EDITORIAL':'Fire Red,Sunshine Yellow,Cobalt Blue,Black|Hot Pink,Lime,Turquoise,Black|Tangerine,Royal Purple,Lime,Black|Kelly Green,Gold,Fire Red,Black',
+ 'BEAUTY BRAND':'Hot Pink,Coral,Peach,Gold|Ruby Red,Hot Pink,Blush Pink,Gold|Lavender,Hot Pink,Aqua,Gold|Fuchsia,Tangerine,Peach,Gold|Emerald,Hot Pink,Blush Pink,Gold',
+ 'CREATOR / ENTREPRENEUR':'Hot Pink,Kelly Green,Sunshine Yellow,Black|Cobalt Blue,Tangerine,Hot Pink,White|Magenta,Teal,Sunshine Yellow,White|Royal Purple,Lime,Tangerine,Black',
+ 'FAITH & CHURCH':'Royal Purple,Gold,Ruby Red,White|Sapphire,Gold,Emerald,White|Ruby Red,Royal Purple,Gold,Ivory|Emerald,Sapphire,Gold,White|Hot Pink,Royal Purple,Gold,White',
+ 'COMMUNITY EVENTS':'Fire Red,Cobalt Blue,Sunshine Yellow,White|Tangerine,Turquoise,Hot Pink,White|Hot Pink,Lime,Cobalt Blue,White|Kelly Green,Sunshine Yellow,Tangerine,White',
+ 'SISTERHOOD & GREEK LIFE':'Hot Pink,Kelly Green,Gold,White|Crimson,Hot Pink,Gold,White|Royal Blue,Sapphire,Gold,White|Royal Purple,Lavender,Gold,White|Ruby Red,Hot Pink,Gold,Black|Emerald,Kelly Green,Gold,White',
+ 'CAREER & PROFESSIONAL':'Navy,Cobalt Blue,Gold,White|Emerald,Teal,Gold,White|Cobalt Blue,Sunshine Yellow,Tangerine,White|Hot Pink,Kelly Green,Gold,Black|Royal Purple,Hot Pink,Gold,White',
+ 'PATCHES & STICKERS':'Hot Pink,Kelly Green,Sunshine Yellow,Black|Coral,Turquoise,Sunshine Yellow,White|Royal Purple,Hot Pink,Lime,Gold|Fire Red,Cobalt Blue,Sunshine Yellow,White|Bubblegum Pink,Mint,Lavender,Lemon Yellow|Tangerine,Fuchsia,Turquoise,White',
+ 'ANTHROPOMORPHIC OBJECTS':'Hot Pink,Turquoise,Sunshine Yellow,White|Tangerine,Royal Purple,Lime,White|Coral,Mint,Lavender,Lemon Yellow|Fire Red,Cobalt Blue,Sunshine Yellow,White|Hot Pink,Kelly Green,Gold,Black|Magenta,Cyan,Lemon Yellow,Black',
+ 'JOKES & HUMOR':'Hot Pink,Turquoise,Sunshine Yellow,White|Tangerine,Royal Purple,Lime,White|Fire Red,Cobalt Blue,Sunshine Yellow,White|Magenta,Cyan,Lemon Yellow,Black|Coral,Mint,Lavender,Lemon Yellow|Hot Pink,Kelly Green,Gold,Black',
+ 'TYPOGRAPHY ART':'Hot Pink,Kelly Green,Gold,Black|Royal Purple,Hot Pink,Gold,Black|Coral,Turquoise,Sunshine Yellow,White|Fire Red,Cobalt Blue,Sunshine Yellow,White|Emerald,Hot Pink,Gold,Black|Bubblegum Pink,Mint,Lavender,Lemon Yellow|Tangerine,Fuchsia,Turquoise,White|Burnt Orange,Deep Teal,Hot Pink,Gold|Electric Blue,Hot Pink,Lime,Black|Ruby Red,Hot Pink,Gold,White',
+ 'BRAND CAMPAIGN':'Hot Pink,Kelly Green,Gold,Black|Fire Red,Cobalt Blue,Sunshine Yellow,White|Cobalt Blue,Tangerine,Hot Pink,White|Magenta,Teal,Gold,White',
+ 'PRODUCT ADVERTISEMENT':'Tangerine,Cobalt Blue,Hot Pink,White|Hot Pink,Lime,Turquoise,White|Fire Red,Sunshine Yellow,Cobalt Blue,White|Turquoise,Coral,Sunshine Yellow,White',
+ 'DIGITAL PRODUCT PROMO':'Lavender,Mint,Hot Pink,White|Electric Blue,Hot Pink,Lime,White|Teal,Coral,Lemon Yellow,White|Royal Purple,Turquoise,Hot Pink,White',
+ 'RETRO CULTURE':'Burnt Orange,Mustard,Deep Teal,Hot Pink|Hot Pink,Turquoise,Sunshine Yellow,Black|Tangerine,Magenta,Royal Purple,Sunshine Yellow|Fire Red,Turquoise,Mustard,Cream',
+ 'SPORTS HYPE':'Fire Red,Cobalt Blue,Gold,Black|Royal Blue,Orange,Sunshine Yellow,White|Kelly Green,Gold,Fire Red,Black|Electric Blue,Neon Orange,Lime,Black|Navy,Crimson,Gold,White',
+ 'PARTY / CELEBRATION':'Hot Pink,Turquoise,Royal Purple,Gold|Royal Purple,Hot Pink,Sunshine Yellow,Gold|Bubblegum Pink,Mint,Lavender,Lemon Yellow|Coral,Turquoise,Sunshine Yellow,Hot Pink',
+ 'FOOD & BEVERAGE COMMERCIAL':'Fire Red,Sunshine Yellow,Kelly Green,White|Coral,Lemon Yellow,Mint,Hot Pink|Burnt Orange,Ruby Red,Sunshine Yellow,Cream|Peach,Hot Pink,Lime,White|Tangerine,Turquoise,Sunshine Yellow,White',
+ 'LUXURY LIFESTYLE':'Emerald,Ruby Red,Gold,Black|Sapphire,Emerald,Gold,Black|Ruby Red,Royal Purple,Gold,Black|Hot Pink,Emerald,Gold,Black|Royal Purple,Sapphire,Champagne Gold,Black',
+ 'MUSIC / ENTERTAINMENT':'Royal Purple,Magenta,Gold,Black|Electric Blue,Hot Pink,Turquoise,Black|Ruby Red,Royal Purple,Gold,Black|Deep Teal,Amber,Magenta,Black',
+ 'TRAVEL / DESTINATION':'Turquoise,Coral,Sunshine Yellow,White|Terracotta,Turquoise,Sunshine Yellow,White|Sunset Orange,Hot Pink,Sapphire,Gold|Emerald,Turquoise,Coral,White',
+ 'SURREAL CREATIVE CONCEPT':'Lavender,Peach,Aqua,Hot Pink|Royal Purple,Turquoise,Hot Pink,Gold|Sapphire,Magenta,Lime,Gold',
+ 'WELLNESS / SELF-CARE':'Hot Pink,Tangerine,Lime,White|Turquoise,Coral,Sunshine Yellow,White|Lavender,Hot Pink,Mint,Gold|Emerald,Aqua,Hot Pink,Gold|Sunset Orange,Fuchsia,Turquoise,White',
+ 'TECH / FUTURISTIC':'Electric Blue,Cyan,Hot Pink,Black|Royal Purple,Hot Pink,Cyan,Black|Neon Green,Electric Blue,Royal Purple,Black',
+ 'EDUCATION / TEACHER LIFE':'Fire Red,Cobalt Blue,Sunshine Yellow,White|Kelly Green,Gold,Fire Red,White|Hot Pink,Turquoise,Lemon Yellow,White|Royal Purple,Lime,Gold,White|Tangerine,Cobalt Blue,Kelly Green,White',
+ 'SCHOOL SPIRIT / GRADUATION':'Kelly Green,Gold,White,Black|Navy,Crimson,Gold,White|Royal Blue,Orange,Gold,White|Royal Purple,Lavender,Gold,White|Fire Red,Gold,Black,White',
+ 'FAMILY REUNION':'Fire Red,Royal Blue,Sunshine Yellow,White|Kelly Green,Tangerine,Gold,White|Tangerine,Turquoise,Hot Pink,White|Royal Purple,Turquoise,Gold,White',
+ 'FAMILY LOVE':'Coral,Turquoise,Sunshine Yellow,White|Hot Pink,Sapphire,Gold,White|Peach,Mint,Lavender,Hot Pink|Ruby Red,Hot Pink,Gold,White',
+ 'CHRISTMAS / WINTER':'Ruby Red,Emerald,Gold,White|Crimson,Pine Green,Gold,Ivory|Icy Blue,Sapphire,Chrome Silver,White|Hot Pink,Emerald,Gold,White|Royal Purple,Ruby Red,Gold,White',
+ 'FALL / THANKSGIVING':'Burnt Orange,Mustard,Deep Red,Deep Teal|Pumpkin Orange,Plum,Burnt Orange,Gold|Pumpkin Orange,Olive Green,Ruby Red,Mustard|Burnt Orange,Hot Pink,Plum,Mustard',
+ 'HALLOWEEN':'Pumpkin Orange,Royal Purple,Lime,Black|Neon Orange,Hot Pink,Royal Purple,Black|Royal Purple,Electric Lime,Pumpkin Orange,Black',
+ 'SPRING / EASTER':'Bubblegum Pink,Mint,Lavender,Lemon Yellow|Hot Pink,Kelly Green,Sunshine Yellow,White|Peach,Aqua,Lavender,Hot Pink|Lavender,Sunshine Yellow,Mint,Hot Pink',
+ 'SUMMER / 4TH OF JULY':'Fire Red,Cobalt Blue,Gold,White|Coral,Turquoise,Sunshine Yellow,White|Hot Pink,Tangerine,Lime,White|Turquoise,Hot Pink,Sunshine Yellow,White',
+ 'VALENTINE’S DAY':'Ruby Red,Hot Pink,Gold,White|Hot Pink,Ruby Red,Blush Pink,Gold|Hot Pink,Lavender,Fuchsia,Gold|Ruby Red,Fuchsia,Coral,White'
+};
+const CAST={
+ 'BEAUTY BRAND':'beauty influencer|glam makeup artist|woman pampering herself at her vanity',
+ 'PRODUCT ADVERTISEMENT':'stylish shopper|streetwear model|small business owner',
+ 'DIGITAL PRODUCT PROMO':'woman entrepreneur at her desk|busy classroom teacher|college student',
+ 'PARTY / CELEBRATION':'birthday host|party planner|birthday girl|birthday boy',
+ 'FOOD & BEVERAGE COMMERCIAL':'chef in a crisp apron|food truck owner|home cook',
+ 'LUXURY LIFESTYLE':'woman in elegant evening wear|man in a tailored suit',
+ 'TRAVEL / DESTINATION':'solo traveler',
+ 'SURREAL CREATIVE CONCEPT':'curious dreamer|fearless explorer',
+ 'WELLNESS / SELF-CARE':'woman in a bright plush robe|yoga instructor in colorful activewear',
+ 'TECH / FUTURISTIC':'tech founder|gamer|software engineer',
+ 'EDUCATION / TEACHER LIFE':'classroom teacher|school principal|excited student',
+ 'SCHOOL SPIRIT / GRADUATION':'proud graduate|cheer coach',
+ 'FAMILY REUNION':'cousins at a reunion',
+ 'FAITH & CHURCH':'first lady in a church hat|church choir',
+ 'COMMUNITY EVENTS':'team of volunteers|community organizer',
+ 'SISTERHOOD & GREEK LIFE':'sorority sisters',
+ 'PATCHES & STICKERS':'woman with a confident pose|classroom teacher',
+ 'TYPOGRAPHY ART':'stylish woman|fashion model|graphic designer|group of friends',
+ 'BRAND CAMPAIGN':'brand model|fashion designer',
+ 'CHRISTMAS / WINTER':'woman in a festive holiday outfit|family in matching holiday pajamas|kids in matching holiday pajamas',
+ 'FALL / THANKSGIVING':'woman in a cozy fall sweater|family at the Thanksgiving table',
+ 'HALLOWEEN':'friends in Halloween costumes|woman in a cute witch costume|kids in Halloween costumes',
+ 'SPRING / EASTER':'family in Easter outfits|woman in a floral sundress|little girl in an Easter dress',
+ 'SUMMER / 4TH OF JULY':'friends at a summer cookout|man at the grill',
+ 'VALENTINE’S DAY':'couple on a date night|woman in a red dress'
+};
+const themes={
+ 'Anything':null,
+ 'Education':['EDUCATION / TEACHER LIFE','SCHOOL SPIRIT / GRADUATION'],
+ 'Family':['FAMILY REUNION','FAMILY LOVE'],
+ 'Fashion':['FASHION / STREETWEAR','URBAN EDITORIAL'],
+ 'Beauty':['BEAUTY BRAND'],
+ 'Business':['CREATOR / ENTREPRENEUR','BRAND CAMPAIGN','PRODUCT ADVERTISEMENT','DIGITAL PRODUCT PROMO'],
+ 'Celebration':['PARTY / CELEBRATION'],
+ 'Holiday':['CHRISTMAS / WINTER','FALL / THANKSGIVING','HALLOWEEN','SPRING / EASTER','SUMMER / 4TH OF JULY','VALENTINE’S DAY'],
+ 'Food':['FOOD & BEVERAGE COMMERCIAL'],
+ 'Sports':['SPORTS HYPE'],
+ 'Music & Retro':['MUSIC / ENTERTAINMENT','RETRO CULTURE'],
+ 'Lifestyle':['LUXURY LIFESTYLE','TRAVEL / DESTINATION','WELLNESS / SELF-CARE'],
+ 'Imagination':['SURREAL CREATIVE CONCEPT','TECH / FUTURISTIC'],
+ 'Faith':['FAITH & CHURCH'],
+ 'Community':['COMMUNITY EVENTS'],
+ 'Sisterhood':['SISTERHOOD & GREEK LIFE'],
+ 'Career':['CAREER & PROFESSIONAL'],
+ 'Patches & Stickers':['PATCHES & STICKERS'],
+ 'Typography':['TYPOGRAPHY ART']
+};
+const FLYER_TYPES=['PARTY / CELEBRATION','FAMILY REUNION','SCHOOL SPIRIT / GRADUATION','CREATOR / ENTREPRENEUR','BRAND CAMPAIGN','MUSIC / ENTERTAINMENT','FOOD & BEVERAGE COMMERCIAL','EDUCATION / TEACHER LIFE','CHRISTMAS / WINTER','FALL / THANKSGIVING','HALLOWEEN','SPRING / EASTER','SUMMER / 4TH OF JULY','VALENTINE’S DAY','FAITH & CHURCH','COMMUNITY EVENTS','SISTERHOOD & GREEK LIFE','CAREER & PROFESSIONAL','WELLNESS / SELF-CARE'];
+for(const p of profiles)if(FLYER_TYPES.includes(p.type))p.outputs.push('Flyer','Flyer');
+const POP={
+ light:[
+  (a,b)=>`dramatic two-tone rim lighting, ${a} light from one side and ${b} light from the other, sculpting the subject against the background`,
+  (a,b)=>`glossy high-end studio lighting with crisp specular highlights, rich shadows and a bright ${a} glow behind the subject`,
+  (a,b)=>`golden-hour backlight that wraps the subject in a warm halo, with a subtle lens flare and ${a} and ${b} tones in the sky`,
+  (a,b)=>`vivid night lighting with ${a} and ${b} glow reflecting on skin, fabric and glossy surfaces`,
+  (a,b)=>`a bold spotlight on the subject with ${a}-tinted haze in the air and bright pops of ${b}`
+ ],
+ camera:['a low-angle hero shot on a 35mm lens that makes the subject feel powerful and larger than life','an 85mm portrait lens with tack-sharp focus on the subject and creamy, colorful background bokeh','a wide-angle dynamic shot with bold, exaggerated perspective','tight, magazine-style framing at eye level with the subject filling the frame'],
+ poseOne:['a dynamic, confident pose and an expressive face full of personality, mid-laugh or mid-stride','a striking power pose with direct eye contact and a magnetic, camera-ready expression','an energetic, in-motion pose that feels caught in the best moment'],
+ poseGroup:['dynamic, varied poses and big, genuine expressions, laughing and interacting with each other','a confident, staggered group pose with real chemistry and lively expressions','an energetic, in-motion moment where everyone is having the time of their lives']
+};
+const FONTS={
+ vibe:{
+  'Urban':['hand-painted graffiti wildstyle letters with interlocking arrows, paint drips and spray-can overspray','chunky airbrushed bubble letters with a 90s spray-can glow and a thick black outline','tagged marker-script letters with a heavy offset drop shadow and paint splatter','stacked chrome block letters with diamond-plate texture and bolted edges'],
+  'Edgy':['sharp liquid-chrome blackletter with spiky, blade-like serifs','cracked, distressed heavy block letters with torn edges','glitchy split-color letters with offset print layers in two palette colors','razor-cut stencil letters with a hard-edged neon underglow'],
+  'Professional':['a bold extra-condensed sans headline in two weights with a solid color highlight bar behind the key word','an oversized modern serif headline with a crisp gold underline swash','clean geometric sans letters set in stacked, color-blocked tiles','sleek italic sans with sharp speed lines and a confident forward lean'],
+  'Classy':['flowing gold-foil calligraphy script with long, elegant swashes, paired with widely spaced serif capitals','a high-contrast fashion serif in polished gold with razor-thin hairlines','embossed satin-ribbon script letters with a soft sheen and gold edges','engraved marble serif capitals with gold-leaf inlay'],
+  'Funny':['inflated puffy balloon letters with glossy highlights and a cartoon bounce','mismatched ransom-note letters cut from colorful magazines, each one a different style','wobbly, squished cartoon block letters with comic outlines and motion marks','melting, dripping candy letters with a glossy sugar shine'],
+  'Informative':['a heavy slab-serif headline in a bold color block, with clean numbered pill labels','a chunky extruded 3D sans headline with crisp outlined sub-labels','a bold rounded sans headline inside a bright badge, with tidy icon-led bullets'],
+  'Glam':['rhinestone-encrusted script letters with sparkle flares on every curve','liquid chrome script with pink and gold reflections','mirror-ball glitter letters scattering light','faceted crystal letters catching rainbow light'],
+  'Playful':['stacked candy-colored bubble letters that overlap and bounce','squishy jelly-gummy letters with a translucent glow','chunky retro groovy letters with a wavy, layered outline','sticker-style letters with thick white outlines, slightly peeling at the corners']
+ },
+ type:{
+  'SPORTS HYPE':['varsity chenille block letters with double stitched outlines','aggressive italic jersey-style letters with metallic trim'],
+  'SCHOOL SPIRIT / GRADUATION':['arched collegiate varsity letters in chenille with stitched outlines','gold-foil collegiate serif with a ribbon banner'],
+  'EDUCATION / TEACHER LIFE':['chalkboard-style hand-lettering with colorful chalk dust and doodles','crayon-textured block letters mixed with a neat teacher script'],
+  'CHRISTMAS / WINTER':['candy-cane striped 3D letters dusted with snow','gold ornament-style script with twinkling lights woven through'],
+  'HALLOWEEN':['slime-dripping horror letters with a glowing outline','carved jack-o’-lantern letters lit from inside'],
+  'VALENTINE’S DAY':['glossy red-candy script with heart-shaped highlights','pink neon-tube script with a soft glow'],
+  'FAITH & CHURCH':['illuminated gold-leaf capitals with ornate flourishes','glowing stained-glass letters with light shining through'],
+  'PATCHES & STICKERS':['chunky chenille varsity letters with a felt outline','bold satin-stitched embroidered script'],
+  'MUSIC / ENTERTAINMENT':['flickering neon-tube script on a dark brick wall','vinyl-record grooved chrome letters'],
+  'FOOD & BEVERAGE COMMERCIAL':['juicy, glossy 3D letters made to look edible','hand-painted retro diner sign letters with marquee bulbs'],
+  'FAMILY REUNION':['arched varsity reunion-shirt letters with a bold outline','warm hand-painted sign letters on a ribbon banner'],
+  'JOKES & HUMOR':['bold meme-style block letters with a thick outline and a comic pop burst behind them','chunky cartoon caption letters with a playful bounce and a speech-bubble frame'],
+ 'RETRO CULTURE':['70s groovy letters with stacked rainbow outlines','80s chrome-and-neon arcade letters with a starburst']
+ },
+ pair:['Set the most important word much larger in a contrasting style, so the phrase reads like a designed headline, not a single font.','Pair the main word in this style with the supporting words in a clean, bold sans for contrast.','Arrange the words at different sizes and angles, layered and overlapping slightly, like a custom lettering piece.']
+};
+const LETTERFORMS=['chunky rounded bubble','sharp high-contrast serif','flowing brush script','extra-bold condensed block','retro groovy wavy','arched varsity collegiate','graffiti wildstyle','elegant swash calligraphy','blocky stencil','tall art-deco'];
+const MODERN='Look: modern, bold and stylish, in line with current 2026 design and fashion trends: fashion-forward styling, clean premium layout, bold shapes and confident color. Nothing dated, cheesy, clip-art, stock-photo or old-fashioned.';
+const THEME={
+ 'FASHION / STREETWEAR':['Fashion & Streetwear','a style statement that shows off a standout outfit and personal swagger','SHOP THE LOOK|NEW DROP · LINK IN BIO|TAG YOUR FIT'],
+ 'URBAN EDITORIAL':['Urban Culture','city life, local style and the people who run the block','BOOK YOUR CUT TODAY|PULL UP THIS WEEKEND|SUPPORT LOCAL'],
+ 'BEAUTY BRAND':['Beauty & Glow','a beauty moment that sells glowing skin, glam and confidence','SHOP THE GLOW|BOOK YOUR APPOINTMENT|TRY IT TODAY'],
+ 'CREATOR / ENTREPRENEUR':['Small Business & Creators','a proud business owner or creator building their brand','SHOP SMALL TODAY|FOLLOW FOR MORE|ORDER NOW · LINK IN BIO'],
+ 'BRAND CAMPAIGN':['Brand Launch','a brand campaign that introduces a bold new look','SHOP THE COLLECTION|AVAILABLE NOW|JOIN THE MOVEMENT'],
+ 'PRODUCT ADVERTISEMENT':['Product Launch','an ad that makes one product irresistible','SHOP NOW|GET YOURS TODAY|LIMITED STOCK · ORDER NOW'],
+ 'DIGITAL PRODUCT PROMO':['Digital Product Launch','promoting a downloadable product people can use right away','DOWNLOAD NOW|GET INSTANT ACCESS|LINK IN BIO'],
+ 'RETRO CULTURE':['Throwback Night','a modern celebration of classic music, skating and throwback style','GRAB YOUR TICKETS|PULL UP IN YOUR BEST THROWBACK|RSVP TODAY'],
+ 'SPORTS HYPE':['Game Day','hype for the big game and the athletes who bring it','PACK THE STANDS|GET YOUR TICKETS|WEAR YOUR COLORS'],
+ 'PARTY / CELEBRATION':['Party Time','a celebration everyone wants to be invited to','RSVP TODAY|SAVE THE DATE|COME CELEBRATE WITH US'],
+ 'FOOD & BEVERAGE COMMERCIAL':['Food & Drink','a craveable dish or drink that makes people hungry right now','ORDER NOW|COME HUNGRY|TRY IT TODAY'],
+ 'LUXURY LIFESTYLE':['Luxury Living','the soft-life luxury experience, rich and elegant','BOOK YOUR EXPERIENCE|SHOP THE COLLECTION|RESERVE YOUR SPOT'],
+ 'MUSIC / ENTERTAINMENT':['Live Music Night','a performer and the energy of a live show','GET YOUR TICKETS|STREAM IT NOW|SEE YOU AT THE SHOW'],
+ 'TRAVEL / DESTINATION':['Travel & Getaways','the excitement of a trip somewhere beautiful','BOOK YOUR TRIP|PLAN YOUR GETAWAY|PACK YOUR BAGS'],
+ 'SURREAL CREATIVE CONCEPT':['Dream World','an imaginative, magical world that sparks wonder','EXPLORE MORE|FOLLOW FOR MORE ART'],
+ 'WELLNESS / SELF-CARE':['Self-Care & Wellness','taking time to rest, glow and feel good','BOOK YOUR SPA DAY|START YOUR RESET|JOIN THE CLASS'],
+ 'TECH / FUTURISTIC':['Tech & Innovation','the newest tech and the people who love it','PRE-ORDER NOW|UPGRADE TODAY|DOWNLOAD THE APP'],
+ 'EDUCATION / TEACHER LIFE':['Teacher Life','celebrating teachers and the joy of the classroom','TAG A TEACHER|THANK A TEACHER TODAY|JOIN OUR TEAM'],
+ 'SCHOOL SPIRIT / GRADUATION':['School Spirit & Graduation','school pride, homecoming and graduation milestones','CONGRATS, GRAD!|SHOW YOUR SCHOOL PRIDE|SEE YOU AT HOMECOMING'],
+ 'FAMILY REUNION':['Family Reunion','bringing the whole family together to celebrate','RSVP BY THE DEADLINE|ORDER YOUR REUNION SHIRT|SEE YOU THERE, FAMILY'],
+ 'FAMILY LOVE':['Family Love','the love and joy between family members','TAG YOUR FAMILY|CALL YOUR MAMA|MAKE MEMORIES TODAY'],
+ 'CHRISTMAS / WINTER':['Christmas','holiday joy, gifts and family time at Christmas','SHOP HOLIDAY GIFTS|JOIN US FOR THE HOLIDAYS|RSVP FOR THE PARTY'],
+ 'FALL / THANKSGIVING':['Fall & Thanksgiving','gratitude, cozy fall style and gathering around the table','JOIN US FOR DINNER|RSVP FOR THANKSGIVING|SHOP FALL FAVORITES'],
+ 'HALLOWEEN':['Halloween','spooky-cute Halloween fun','COSTUMES ENCOURAGED|JOIN THE TRUNK-OR-TREAT|RSVP FOR THE PARTY'],
+ 'SPRING / EASTER':['Spring & Easter','fresh blooms, Easter Sunday and new beginnings','JOIN US EASTER SUNDAY|SHOP SPRING STYLES|SAVE THE DATE'],
+ 'SUMMER / 4TH OF JULY':['Summer & the 4th','summer cookouts, sunshine and fireworks','PULL UP TO THE COOKOUT|RSVP TODAY|SEE YOU AT THE FIREWORKS'],
+ 'VALENTINE’S DAY':['Valentine’s Day','love, romance and friendship on Valentine’s Day','BOOK YOUR DATE NIGHT|SHOP VALENTINE’S GIFTS|TAG YOUR VALENTINE'],
+ 'FAITH & CHURCH':['Faith & Church','worship, praise and church family','JOIN US SUNDAY|ALL ARE WELCOME|SERVICE STARTS AT 10 AM'],
+ 'COMMUNITY EVENTS':['Community Event','neighbors coming together for a free community event','FREE AND OPEN TO ALL|BRING THE WHOLE FAMILY|VOLUNTEER WITH US'],
+ 'SISTERHOOD & GREEK LIFE':['Sisterhood','sisterhood, service and celebrating each other','JOIN US FOR THE EVENT|RSVP TODAY|SUPPORT OUR SERVICE PROJECT'],
+ 'CAREER & PROFESSIONAL':['Career & Business','a professional who is great at what they do','BOOK YOUR APPOINTMENT|CALL TODAY|SCHEDULE YOUR CONSULTATION'],
+ 'PATCHES & STICKERS':['Patches & Stickers','a fun collectible design with one clear personality',''],
+ 'ANTHROPOMORPHIC OBJECTS':['Objects With Personality','an everyday object with a big, funny personality that matches the phrase',''],
+ 'JOKES & HUMOR':['Jokes & Humor','a funny, relatable moment where the picture itself delivers the punchline','TAG SOMEONE WHO DOES THIS|SEND THIS TO THE GROUP CHAT|SHARE IF THIS IS YOU'],
+ 'TYPOGRAPHY ART':['Typography Art','the phrase itself as the artwork','']
+};
+const CTA_OUTPUTS=new Set(['Flyer','Invitation','Billboard','Website Hero','App Promotion','Product Advertisement','Brand Campaign','Menu Board','Yard Sign','Business Card Design','Concert Poster','Program Cover']);
+const VIBE_BLOCK={
+ 'Edgy':['JOKES & HUMOR','FAITH & CHURCH','FAMILY LOVE','VALENTINE’S DAY','SPRING / EASTER','WELLNESS / SELF-CARE','CHRISTMAS / WINTER','FALL / THANKSGIVING','FAMILY REUNION','EDUCATION / TEACHER LIFE','BEAUTY BRAND','LUXURY LIFESTYLE'],
+ 'Urban':['JOKES & HUMOR','FAITH & CHURCH','FAMILY LOVE','SPRING / EASTER','VALENTINE’S DAY','WELLNESS / SELF-CARE','LUXURY LIFESTYLE','CHRISTMAS / WINTER','FALL / THANKSGIVING'],
+ 'Professional':['JOKES & HUMOR','PARTY / CELEBRATION','FAMILY REUNION','FAMILY LOVE','HALLOWEEN','VALENTINE’S DAY','SPRING / EASTER','CHRISTMAS / WINTER','FALL / THANKSGIVING','SUMMER / 4TH OF JULY','RETRO CULTURE','SURREAL CREATIVE CONCEPT','ANTHROPOMORPHIC OBJECTS','PATCHES & STICKERS','SPORTS HYPE','MUSIC / ENTERTAINMENT'],
+ 'Classy':['JOKES & HUMOR','HALLOWEEN','SPORTS HYPE','PATCHES & STICKERS','ANTHROPOMORPHIC OBJECTS','RETRO CULTURE','URBAN EDITORIAL'],
+ 'Glam':['JOKES & HUMOR','SPORTS HYPE','COMMUNITY EVENTS','EDUCATION / TEACHER LIFE','HALLOWEEN','FAITH & CHURCH','TECH / FUTURISTIC'],
+ 'Informative':['JOKES & HUMOR','SURREAL CREATIVE CONCEPT','PATCHES & STICKERS','ANTHROPOMORPHIC OBJECTS','TYPOGRAPHY ART','MUSIC / ENTERTAINMENT','LUXURY LIFESTYLE'],
+ 'Playful':['LUXURY LIFESTYLE','CAREER & PROFESSIONAL','FAITH & CHURCH'],
+ 'Funny':[]
+};
+function vibeFor(type){
+  const ok=Object.keys(VIBES).filter(v=>!(VIBE_BLOCK[v]||[]).includes(type));
+  const fun=ok.filter(v=>v==='Funny'||v==='Playful'),rest=ok.filter(v=>!fun.includes(v));
+  return pick(Math.random()<.4||!rest.length?fun:rest);
+}
+const FUNNY_CTA={
+ 'JOKES & HUMOR':'TAG SOMEONE WHO DOES THIS|SEND THIS TO THE GROUP CHAT|SHARE IF THIS IS YOU',
+ 'FAMILY REUNION':'RSVP OR AUNTIE WILL CALL YOU|BRING A DISH, NOT DRAMA|PULL UP OR PAY UP|NO PLUS-ONES YOU MET LAST WEEK',
+ 'FAMILY LOVE':'CALL YOUR MAMA. NO, REALLY.|TAG THE FAVORITE CHILD',
+ 'PARTY / CELEBRATION':'RSVP OR MISS OUT FOREVER|COME FOR THE CAKE, STAY FOR THE CAKE|DRESS CODE: SHOW OUT',
+ 'FAITH & CHURCH':'SERVICE STARTS AT 10. BE THERE AT 9:55.|COME HUNGRY. THERE’S A REPAST.',
+ 'COMMUNITY EVENTS':'FREE FOOD. DO WE NEED TO SAY MORE?|BRING YOUR COUSINS (ALL OF THEM)',
+ 'EDUCATION / TEACHER LIFE':'TAG A TEACHER WHO NEEDS A NAP|SEND COFFEE, PLEASE',
+ 'SCHOOL SPIRIT / GRADUATION':'BE LOUD OR BE QUIET… JUST KIDDING, BE LOUD|TISSUES NOT INCLUDED',
+ 'FOOD & BEVERAGE COMMERCIAL':'ORDER NOW. YOUR DIET STARTS MONDAY.|COME HUNGRY, LEAVE HAPPY',
+ 'CAREER & PROFESSIONAL':'BOOK NOW BEFORE I GET BOOKED UP|CALL TODAY (WE ACTUALLY ANSWER)',
+ 'URBAN EDITORIAL':'BOOK NOW. YOUR HAIRLINE CALLED.|WALK-INS WELCOME, EXCUSES ARE NOT',
+ 'BEAUTY BRAND':'SHOP NOW. YOUR SELFIE WILL THANK YOU.|GLOW NOW, EXPLAIN LATER',
+ 'CHRISTMAS / WINTER':'RSVP OR GET COAL|UGLY SWEATERS WELCOME',
+ 'HALLOWEEN':'COSTUME REQUIRED. NO EXCUSES.|BRING YOUR OWN CANDY BAG',
+ 'VALENTINE’S DAY':'BOOK THE DATE BEFORE THEY CHANGE THEIR MIND|SINGLES WELCOME TOO',
+ 'SUMMER / 4TH OF JULY':'BRING YOUR OWN LAWN CHAIR|DON’T TOUCH THE GRILL',
+ '*':'DON’T BE THE ONE WHO MISSED IT|SERIOUSLY, DON’T MISS THIS|YOU KNOW YOU WANT TO'
+};
+function wildCard(p,isPerson){
+  const items=p.items.filter(x=>!x.person).map(x=>x.name);
+  const w=['Hide one tiny, funny surprise detail somewhere in the scene that rewards a second look.','Make the headline lettering oversized and a little bit extra, while keeping every word readable.','Add a burst of confetti or sparkle going off mid-moment, like the photo caught the best second of the party.'];
+  if(items.length)w.push(`Add a cameo: a tiny ${pick(items)} brought to life as a cheeky little character, photobombing from the corner.`);
+  if(isPerson)w.push('Add a scene-stealing sidekick: a stylish pet in a matching outfit, totally unbothered.','Have one person in the background doing something hilariously extra, without pulling focus from the star.');
+  if(isPerson&&p.type!=='JOKES & HUMOR')w.push('Catch the main character mid-reaction with a big, exaggerated, joyful expression.');
+  else w.push('Give the main subject one unexpected, playful detail that makes people smile, like tiny sunglasses or a little sparkle wink.');
+  if(p.type==='SURREAL CREATIVE CONCEPT')w.push('Give the whole scene a miniature-world, tilt-shift effect.');
+  return pick(w);
+}
+function lightFor(scene,isolated){
+  const sc=(scene||'').toLowerCase();
+  if(isolated)return [0,1];
+  if(/night|neon|stage|lounge|concert|club|moonlit|spooky|dance floor|skyline|candlelit|ballroom|gala/.test(sc))return [0,3,4];
+  if(/rooftop|beach|park|street|yard|quad|stadium|patio|porch|garden|meadow|boardwalk|sidewalk|lawn|desert|alley|market|corner|lake|pumpkin patch|campus|cookout|deck|steps|pavilion/.test(sc))return [0,2];
+  return [0,1,4];
+}
+const JOKE={
+ 'woman texting “I’m 5 minutes away” while still in her bonnet and robe':'ON MY WAY (I HAVEN’T LEFT)|5 MINUTES AWAY. ALLEGEDLY.',
+ 'auntie guarding the cookout plates':'WHO MADE THE POTATO SALAD?|PLATE POLICE ON DUTY|DON’T TOUCH THE MAC AND CHEESE',
+ 'man stuck in a meeting that should have been an email':'THIS COULD HAVE BEEN AN EMAIL|PER MY LAST EMAIL…',
+ 'friends blowing up the group chat at 2 a.m.':'THE GROUP CHAT NEVER SLEEPS|WHO STARTED THIS?',
+ 'big mama giving the “don’t make me come in there” look':'DON’T MAKE ME COME IN THERE|I SAID WHAT I SAID',
+ 'teacher in a standoff with a jammed copier':'THE COPIER CHOSE VIOLENCE TODAY|NOT TODAY, COPIER',
+ 'man taking gym selfies instead of working out':'GYM SELFIE: DONE. WORKOUT: PENDING.|I CAME, I POSED, I LEFT',
+ 'woman juggling three cups of coffee on a Monday morning':'MONDAY CHOSE VIOLENCE|COFFEE FIRST, PERSONALITY LATER',
+ 'uncle owning the dance floor at the cookout':'CUE THE ELECTRIC SLIDE|THAT’S MY JAM!',
+ 'woman leaving the beauty supply store with a full basket':'I ONLY CAME IN FOR EDGE CONTROL|BUDGET? NEVER HEARD OF HER',
+ 'man building furniture with way too many leftover screws':'I DIDN’T NEED THE INSTRUCTIONS|EXTRA SCREWS MEAN IT’S STRONGER',
+ 'friends at brunch pretending not to see the check':'SPLIT THE CHECK? I ONLY HAD WATER|BRUNCH IS MY CARDIO',
+ 'baker proudly holding a tray of donuts':'DONUT WORRY, BE HAPPY|I DONUT CARE, I’M EATING THIS',
+ 'man tearing the couch apart looking for the TV remote':'WHO HAD THE REMOTE LAST?|THE REMOTE IS GONE. AGAIN.',
+ 'woman protecting her snacks from everyone in the house':'PROTECTING MY PEACE AND MY SNACKS|THESE ARE MY SNACKS. ASK FIRST.',
+ 'friends arguing about who’s the better cook':'I’M NOT ARGUING, I’M EXPLAINING WHY I’M RIGHT|MY MAMA’S RECIPE WINS'
+};
+const FORMAT={
+ 'Greeting Card':'Format: a printed 5x7 greeting card, shown standing upright on a styled tabletop with visible card-stock edges and a soft shadow. The card front has a modern, bold, full-bleed design with the phrase as the greeting.',
+ 'Invitation':'Format: a printed 5x7 invitation card on a styled flat lay with a matching envelope, with the phrase as the title and a clean details area that reads “DATE · TIME · LOCATION”.',
+ 'Postcard':'Format: a 4x6 postcard front with a modern, full-bleed design and a small graphic stamp in one corner.',
+ 'Program Cover':'Format: the front cover of a folded 8.5x11 event program, with the phrase as the title and a small line for the event date.',
+ 'Business Card Design':'Format: a standard 3.5x2 inch business card shown front and back on a desk, with “YOUR NAME” and “PHONE · EMAIL · WEBSITE” placeholders.',
+ 'Menu Board':'Format: a restaurant menu board with the phrase as the header and neat rows for item names and prices.',
+ 'Yard Sign':'Format: a corrugated yard sign staked in a green lawn, with large, simple lettering readable from the street.',
+ 'Classroom Banner':'Format: a wide horizontal banner hanging on a bright classroom wall.',
+ 'Album Cover':'Format: a square 1:1 album cover with the phrase as the album title.',
+ 'Magazine Cover':'Format: a portrait magazine cover with a bold masthead area, the phrase as the main cover line and a few small cover lines.',
+ 'Billboard':'Format: a wide roadside billboard, shown in its real-world setting.',
+ 'Poster':'Format: a 2:3 portrait poster.',
+ 'Concert Poster':'Format: a 2:3 portrait concert poster with a small line for the date and venue.',
+ 'Art Print':'Format: a 2:3 portrait art print.',
+ 'Wall Art Print':'Format: a framed art print hanging on a styled interior wall.',
+ 'Social Media Graphic':'Format: a 4:5 portrait social media post.',
+ 'Website Hero':'Format: a wide 16:9 website hero banner with the phrase as the headline and a small button area.',
+ 'App Promotion':'Format: an app promotion graphic with floating phone screens showing the app.',
+ 'Product Advertisement':'Format: a polished product advertisement.',
+ 'Brand Campaign':'Format: a brand campaign ad.',
+ 'Flyer':'Format: an 8.5x11 event flyer with the phrase as the headline, plus a clean details band that reads “DATE · TIME · LOCATION” for easy editing.',
+ 'T-Shirt Design':'Format: a T-shirt graphic. Keep the artwork self-contained and print-ready with a clean outer edge and no background clutter.',
+ 'Chenille Patch':'Format: a chenille patch with fuzzy chenille fill, satin-stitched borders and a clean, die-cut outer edge.',
+ 'Embroidered Patch':'Format: an embroidered patch with dense thread texture and a stitched merrowed border.',
+ 'Die-Cut Sticker':'Format: a die-cut sticker with a bold white outline and crisp, print-ready edges.',
+ 'Sticker Design':'Format: a die-cut sticker with a bold white outline and crisp, print-ready edges.',
+ 'Sticker Sheet':'Format: a sticker sheet of several die-cut stickers with bold white outlines, laid out on one page.'
+};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const sample=(a,n)=>{const pool=[...a],out=[];while(out.length<n&&pool.length)out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);return out};
+const art=w=>/^(a|an|the) /i.test(w)?w:(/^[aeiou]/i.test(w)?'an ':'a ')+w;
+const plural=new Set(['sneakers','smart glasses','wireless earbuds','watermelon slices','pastel eggs in a nest']);
+const join=a=>a.length<2?a[0]:a.slice(0,-1).join(', ')+' and '+a.at(-1);
+let lastType='',lastPhrase='',sequence=0;
+
+const ALIVE={
+ traits:['big expressive cartoon eyes and a cheeky grin','a sassy side-eye and one raised eyebrow','a huge, joyful open-mouth laugh','a cool, confident smirk','wide, sparkling eyes and rosy cheeks','a dramatic, over-the-top shocked face'],
+ limbs:['little arms and legs in a confident power pose','tiny arms raised mid-dance','one hand on the hip and a sassy lean','arms crossed with total attitude','striking a runway walk','giving a big thumbs up'],
+ acc:['oversized sunglasses','a tiny gold chain','fresh mini sneakers','a bow and pearl earrings','a little backward cap','a mini crown of flowers','headphones around the neck','a tiny designer handbag']
+};
+function bringToLife(name){
+  return `${art(name)} brought to life as a modern, stylish cartoon character with ${pick(ALIVE.traits)}, ${pick(ALIVE.limbs)} and ${pick(ALIVE.acc)}, keeping its real shape and material so it is instantly recognizable`;
+}
+function stylesFor(p,s,family){
+  return p.pools[family].filter(st=>{
+    if(s.person&&st==='Luxury product photography')return false;
+    if(family==='cartoon'&&!s.person&&!s.alive&&st!=='High-Gloss Illustration')return false;
+    if(st==='Curvy Streetwear Doll')return s.name==='curvy fashion model';
+    return true;
+  });
+}
+const YOUTH_RE=/\b(kid|kids|child|children|teen|teens|teenage|student|students|boy|girl|youth|high school|little)\b/;
+const ADULT_AGE=['20s','20s','20s','20s','30s','30s','30s','40s','40s','50s','60s'];
+const GLAM_W=['gorgeous','glamorous','stunning','beautiful','radiant'];
+const GLAM_M=['handsome','strikingly handsome','sharp, handsome','well-groomed, handsome'];
+const hairG=['braided pigtails with colorful beads','two puffs with bows','box braids','a curly afro','neat twists','cornrows with beads'];
+const hairTG=['knotless braids','a sleek high ponytail','a curly afro','space buns','long twists','a silk press with a side part'];
+const hairB=['a fresh fade','short twists','a curly top','neat cornrows','a low cut with a sharp line-up'];
+function describe(s){
+  const nm=s.name;
+  let d=(plural.has(nm)||/^(sorority sisters|line sisters|best friends|friends|cousins|grandparents|siblings|kids|teens|teen cousins|teen volunteers)/.test(nm))?nm:art(nm);
+  if(!s.person)return d;
+  const youth=YOUTH_RE.test(nm)&&!/college/.test(nm);
+  const teenish=/teen|high school|seniors|homecoming/.test(nm);
+  const youthGroup=youth&&/kids|students|team|choir|seniors|teens|teen cousins|volunteers|group/.test(nm)&&!/mother|father|grand/.test(nm);
+  if(!youthGroup&&!/big mama|grandma’s/.test(nm)&&/family|grand|mother|father|siblings|cousins/.test(nm)){
+    d+=` (a Black family, each person with a distinct face, a range of brown skin tones, ${youth||Math.random()<.6?'young parents in their 30s with their kids and teens':'a mix of ages'}, varied hairstyles and a natural family resemblance)`;
+    d+=', dressed in coordinated, modern, fashion-forward outfits, with the kids in age-appropriate versions';
+    return d;
+  }
+  if(youthGroup){
+    d+=` (Black ${teenish?'teens around 14 to 18':'kids around 6 to 11'}, a mix of boys and girls, each with a distinct face, a range of brown skin tones, varied hairstyles, all smiling and full of energy), dressed in trendy, age-appropriate outfits that fit the scene`;
+    return d;
+  }
+  if(youth){
+    const g=/girl|queen|cheerleader|dress/.test(nm)?'girl':/boy|king|\bson\b/.test(nm)?'boy':(Math.random()<.5?'girl':'boy');
+    const teen=teenish||(/student/.test(nm)&&Math.random()<.5);
+    const age=teen?pick(['14','15','16','17']):pick(['6','7','8','9','10']);
+    d+=`, a Black ${teen?'teen ':''}${g} about ${age} years old with ${pick(skin)} skin, ${pick(g==='girl'?(teen?hairTG:hairG):hairB)} and a big, genuine smile, dressed in trendy, age-appropriate clothing that fits the scene`;
+    return d;
+  }
+  if(/sisters|galentine/i.test(nm)){
+    d+=` (glamorous Black women ${Math.random()<.7?'in their 20s and 30s':'from their 20s to their 50s'}, each with a distinct face, a range of brown skin tones, and varied hairstyles and body types)`;
+  }else if(/group|couple|friends|court|volunteers|choir|team/.test(nm)){
+    d+=` (stylish Black adults ${Math.random()<.7?'in their 20s and 30s':'from their 20s to their 50s'}, a mix of fit, glam women and handsome men, each with a distinct face, a range of brown skin tones, and varied hairstyles and body types)`;
+  }else{
+    const g=genderOf(nm),w=g==='woman';
+    const ageTxt=/grandmother|grandfather|pastor|first lady|big mama|auntie|uncle/.test(nm)?pick(['40s','50s','60s']):pick(ADULT_AGE);
+    const build=/curvy/.test(nm)?'a curvy build':pick(w?['a fit, toned build','an athletic build','a curvy build','a slim build','a plus-size build']:['a fit, muscular build','an athletic build','a broad build','a slim build','a plus-size build']);
+    d=d+`, ${art(pick(w?GLAM_W:GLAM_M))} Black ${g} in ${w?'her':'his'} ${ageTxt} with ${pick(skin)} skin, ${pick(w?hairW:hairM)} and ${build}`;
+  }
+  if(!/evening wear|sweater|dress|costume|outfit|pajamas|apron|robe|suit/.test(nm))d+=', dressed in modern, stylish, fashion-forward clothing that fits the role, classy and never revealing';
+  return d;
+}
+const TYPE={
+ materials:split('chenille patch fabric|inflated foil balloons|glowing neon glass tubes|hammered gold leaf|stitched denim|glossy hard candy|translucent gummy candy|shimmering sequins|polished marble|hand-carved wood|mirror chrome|chunky glitter|tufted velvet|chunky knitted yarn|raised embroidery thread|dripping liquid gold|frosted ice|fluffy faux fur|ceramic mosaic tiles|layered paper cutouts|soft sculpted clay|piped cookie frosting|leather with gold studs|sparkling rhinestones|woven rattan|puffy vinyl|holographic acrylic|pressed fresh flowers|stacked toy building bricks|crocheted granny squares'),
+ textures:split('high-gloss|soft matte|sparkly|fuzzy|distressed and cracked|dewy wet-look|frosted|quilted|pebbled|satin-smooth|crinkled foil|brushed metal|bubbly and puffy'),
+ patterns:split('leopard print|zebra stripes|checkerboard|houndstooth|polka dots|candy stripes|bold florals|camouflage|paisley|plaid|tie-dye|Kente-inspired geometric|mudcloth-inspired|terrazzo speckles|marble swirls|argyle|graffiti tags|retro wavy lines|solid color with no pattern'),
+ sizes:split('giant room-sized letters|oversized letters taller than a person|billboard-scale letters|tabletop-sized letters|mini sticker-sized letters|mixed sizes with one huge hero word|stacked letters of varying heights'),
+ layouts:split('stacked|arched|wavy|circular badge|diagonal|staggered and bouncing|mixed-material letter collage, each letter a different material|word that wraps around the scene')
+};
+function genType(p,V,vName,family){
+  const pools={realistic:p.pools.realistic,cartoon:p.pools.cartoon,experimental:p.pools.experimental};
+  const withChar=Math.random()<.35;
+  const ch=withChar?{name:pick(split(CAST[p.type])),person:true}:null;
+  const c={type:p.type,vibe:vName,info:null,scene:pick(p.items[0].scenes),style:pick(pools[family].length?pools[family]:pools.realistic),
+    mood:pick(V.moods),palette:pick(split(PALS[p.type])).split(','),typography:pick(LETTERFORMS),
+    phrase:pick(p.phrases.filter(x=>x!==lastPhrase)),elements:sample(p.elements,2+Math.floor(Math.random()*2)),
+    composition:pick(p.compositions),output:pick(p.outputs),twist:null,
+    material:pick(TYPE.materials),texture:pick(TYPE.textures),pattern:pick(TYPE.patterns),size:pick(TYPE.sizes),layout:pick(TYPE.layouts),
+    subject:ch?describe(ch):''};
+  if(c.output==='Sticker Sheet'&&/room-sized|taller than|billboard/.test(c.size))c.size='bold sticker-sized letters';
+  if(c.output==='T-Shirt Design'){c.scene='an isolated vignette on a clean background';c.composition='Centered Hero';}
+  if(vName==='Funny')c.phrase=pick(split(FUNNY[p.type]));
+  if(vName==='Informative'){const inf=INFO[p.type];c.phrase=inf[0];c.info=inf.slice(1);}
+  const collage=/collage/.test(c.layout);
+  const build=collage?`built as ${c.size} in a ${c.layout}, mixing ${c.material} with other premium materials`:`built as ${c.size} made of ${c.material}, with ${art(c.texture)} texture and ${art(c.pattern)} pattern, arranged in ${art(c.layout)} layout`;
+  const dir=ch?V.dir:V.dir.replace('expressive, flattering faces, ','');
+  c.prompt=`Create ${art(c.output.toLowerCase()).replace("t-shirt","T-shirt")} where the typography is the star. Spell out “${c.phrase}” in ${c.typography} letterforms ${build}. Every letter must be complete, correctly spelled and easy to read. Theme: typography art, where the phrase itself is the artwork; the material, pattern, colors, accents and any character all match the meaning of the phrase so the piece feels like one idea. ${MODERN} ${CTA_OUTPUTS.has(c.output)?`Add a small call-to-action line, “${c.cta=pick(['SHOP THE PRINT','FOLLOW FOR MORE','TAG A FRIEND WHO NEEDS THIS'])}”, under the main word in a clean, contrasting style. `:''}${c.info?`Below it, add a clean info panel listing exactly: ${c.info.map((t,i)=>`“${i+1}. ${t}”`).join(', ')}. `:''}${ch?`Include ${c.subject}, posing with and interacting with the letters; ${/group|friends/.test(ch.name)?'the characters are':'the character is'} clearly visible and fully rendered, but the lettering stays the hero. `:''}${c.output==='T-Shirt Design'?'Present it as an isolated vignette on a clean background.':`Set it on ${art(c.scene)}.`} Overall vibe: ${vName.toLowerCase()}, ${dir}. Render it in ${art(c.style.toLowerCase()).replace(/\b3d\b/g,'3D')} style with ${art(c.mood.toLowerCase())} mood, with hyper-detailed material texture, glossy highlights and real cast shadows on every letter. Lighting: ${pick(POP.light)(...c.palette.filter(x=>!/^(White|Black|Ivory|Cream)$/.test(x)).concat(c.palette).slice(0,2).map(x=>x.toLowerCase()))}. Color: ${join(c.palette).toLowerCase()}, fully saturated and high contrast; no muted, faded, sepia, beige or washed-out tones. Add ${join(c.elements).toLowerCase()} as supporting accents. Use ${art(c.composition.toLowerCase())} composition. ${FORMAT[c.output]?FORMAT[c.output]+' ':''}No brand logos. Quality: high-end, magazine-cover and luxury ad campaign quality, 8K detail, razor-sharp focus and crisp, legible lettering.`;
+  c.fields=[['Challenge Type',c.type],['Vibe',c.vibe],[c.info?'Headline + Info':'Phrase','“'+c.phrase+'”'+(c.info?' · '+c.info.map((t,i)=>(i+1)+'. '+t).join(' · '):''),true],
+    ['Material',collage?'Mixed materials, one per letter':c.material],['Texture',collage?'Varies by letter':c.texture],['Pattern',collage?'Varies by letter':c.pattern],['Size / Scale',c.size],['Layout',c.layout],['Letterforms',c.typography],
+    ['Setting / Scene',c.scene],['Visual Style',c.style],['Mood / Energy',c.mood],['Color Palette',c.palette.join(' + ')],['Decorative Elements',c.elements.join(' · ')],['Composition',c.composition],['Lighting',c.light],...(c.camera?[['Camera',c.camera]]:[]),['Output Type',c.output]];
+  if(c.cta)c.fields.push(['Call to Action',c.cta]);
+  if(ch)c.fields.splice(3,0,['Character',c.subject,true]);
+  c.personality=pick(personalities);c.number=++sequence;lastType=c.type;lastPhrase=c.phrase;
+  return c;
+}
+function generate(theme='Anything',vibeName='Any'){
+  const tl=[].concat(theme).filter(t=>themes[t]);
+  const types=new Set(tl.flatMap(t=>themes[t]));
+  const allowed=types.size?profiles.filter(p=>types.has(p.type)):profiles;
+  for(let i=0;i<300;i++){
+    const pool=allowed.length>1?allowed.filter(x=>x.type!==lastType):allowed;
+    const jk=pool.find(x=>x.type==='JOKES & HUMOR');
+    const p=(jk&&Math.random()<.07)?jk:pick(pool);
+    const vName=vibeFor(p.type),V=VIBES[vName];
+    const roll=Math.random();
+    const family=roll<V.fam[0]?'realistic':roll<V.fam[0]+V.fam[1]?'cartoon':'experimental';
+    if(p.type==='TYPOGRAPHY ART')return genType(p,V,vName,family);
+    const s0=pick(p.items);
+    let s=s0,prop=null;
+    if(p.type==='ANTHROPOMORPHIC OBJECTS')s={...s0,alive:true};
+    else if(!s0.person&&Math.random()<.55&&CAST[p.type]){prop=s0.name;s={name:pick(split(CAST[p.type])),scenes:s0.scenes,person:true};}
+    else if(!s0.person&&Math.random()<.3)s={...s0,alive:true};
+    let styles=stylesFor(p,s,family);if(!styles.length)styles=stylesFor(p,s,'realistic');if(!styles.length)continue;
+    const c={type:p.type,subject:s.alive?bringToLife(s.name):describe(s)+(prop?`, posed with ${plural.has(prop)||/^(pastel eggs|watermelon slices|fireworks|food drive boxes)/.test(prop)?prop:art(prop)} as the featured item`:''),scene:pick(s.scenes),style:pick(styles),mood:pick(V.moods),vibe:vName,info:null,
+      palette:pick(split(PALS[p.type])).split(','),typography:(FONTS.type[p.type]&&Math.random()<.6)?pick(FONTS.type[p.type]):pick(FONTS.vibe[vName]),phrase:pick(p.phrases.filter(x=>x!==lastPhrase)),
+      elements:sample(p.elements,2+Math.floor(Math.random()*2)),composition:pick(p.compositions),output:pick(p.outputs),twist:null};
+    const COMPKEY=['Album Cover','Menu','Postcard','Invitation','Magazine Cover','Billboard','Infographic'];
+    {const k=COMPKEY.find(w=>c.composition.includes(w));if(k&&!c.output.includes(k.replace(' Layout',''))){const alt=p.compositions.filter(x=>!COMPKEY.some(w=>x.includes(w)));c.composition=alt.length?pick(alt):'Centered Hero';}}
+    if(!s.person&&!s.alive&&/Full-Body|Action Hero|Spotlight|Group Portrait/.test(c.composition))continue;
+    if(s.alive&&/Group Portrait/.test(c.composition))continue;
+    if(c.output==='App Promotion'&&!/phone|app/.test(s.name))continue;
+    if(c.output==='T-Shirt Design'){c.scene='an isolated vignette on a clean background';c.composition='Centered Hero';}
+    if(/Patch|Sticker/.test(c.output)){c.scene='an isolated die-cut design on a clean background';c.composition='Badge Layout';}
+    c.effect='';c.pair=c.phrase.split(' ').length>1&&Math.random()<.6?pick(FONTS.pair):null;
+    if(vName==='Funny'){c.phrase=pick(split(FUNNY[p.type]).filter(x=>x!==lastPhrase));}
+    if(vName==='Informative'){const inf=INFO[p.type];c.phrase=inf[0];c.info=inf.slice(1);if(c.output!=='T-Shirt Design')c.composition='Infographic Poster Layout';}
+    if(JOKE[s0.name]){c.phrase=pick(split(JOKE[s0.name]));c.info=null;c.joke=true;}
+    if(Math.random()<.4)c.twist='Wild card: '+wildCard(p,s.person||s.alive);
+    const isGroup=/group|couple|friends|court|sisters|volunteers|choir|team|family|grand|mother|father|siblings|cousins|kids|students|teens|seniors/.test(s.name);
+    const isolated=/T-Shirt|Patch|Sticker/.test(c.output);
+    const [ca,cb]=c.palette.filter(x=>!/^(White|Black|Ivory|Cream)$/.test(x)).concat(c.palette);
+    const lc=x=>x.toLowerCase();
+    c.light=POP.light[pick(lightFor(c.scene,isolated))](lc(ca),lc(cb));c.camera=isolated?null:pick(POP.camera);
+    const parts=[];
+    parts.push(`Create a scroll-stopping ${c.output.toLowerCase().replace('t-shirt','T-shirt')} featuring ${c.subject}, ${isolated?'as a bold, self-contained graphic':`set in ${art(c.scene.toLowerCase()).replace('sunday','Sunday')}`}.`);
+    const T=THEME[p.type];c.theme=T[0]+': '+T[1];
+    c.cta=null;
+    if(T[2]&&CTA_OUTPUTS.has(c.output)){
+      const all=split(T[2]);
+      const eventish=all.filter(x=>/TICKETS|RSVP|JOIN|SEE YOU|PULL UP|SAVE THE DATE|COME|FREE|BRING|SERVICE|VOLUNTEER|RESERVE|BOOK|CALL|SCHEDULE|PACK|WEAR|ORDER YOUR/.test(x));
+      c.cta=pick(/Flyer|Invitation|Yard Sign|Program Cover|Concert Poster/.test(c.output)&&eventish.length?eventish:all);
+      if(vName==='Funny'||vName==='Playful')c.cta=pick(split(FUNNY_CTA[p.type]||FUNNY_CTA['*']));
+    }
+    if(c.joke&&!c.cta&&c.output==='Social Media Graphic'&&Math.random()<.6)c.cta=pick(split(T[2]));
+    parts.push(`Theme: ${T[0]}, ${T[1]}. Tell one connected story: the subject, setting, props, colors, lettering and accents all belong to this theme and support the headline, and nothing in the frame is random or unrelated.`);
+    if(s.alive)parts.push('The object character is the star of the image: front and center, full of personality, with a clear, readable expression, rendered in crisp detail and never cropped or hidden.');
+    if(c.joke)parts.push(`The joke has to land at a glance: ${isGroup?'their':'the character’s'} exaggerated expressions and body language sell the moment like a viral meme, and the headline is the punchline. ${isGroup?'Every face is':'The face is'} clearly visible and rendered in sharp, flattering detail.`);
+    if(s.person&&!c.joke)parts.push(`${isGroup?'Give them':'Give the character'} ${pick(isGroup?POP.poseGroup:POP.poseOne)}; ${isGroup?'every face and outfit is':'face and outfit are'} rendered in sharp, flattering detail, clearly visible and never cropped out or hidden.`);
+    parts.push(MODERN);
+    parts.push(`Vibe: ${lc(c.vibe)}, ${s.person||s.alive?V.dir:V.dir.replace('expressive, flattering faces, ','')}. Style: ${lc(c.style).replace(/\b3d\b/g,'3D')} with ${art(lc(c.mood))} mood.`);
+    parts.push(`Lighting: ${c.light}.`);
+    if(c.camera)parts.push(`Camera: ${c.camera}.`);
+    if(!isolated)parts.push(`Depth: ${lc(c.elements[0])} in the soft-focus foreground, the ${isGroup?'characters':(s.person||s.alive)?'character':'subject'} crisp in the middle, and a richly detailed background. Style the whole set in the palette with color-blocked backdrops and props, so nothing in the frame is plain, empty or beige.`);
+    parts.push(`Color: ${join(c.palette).toLowerCase()}, fully saturated and high contrast, with deep shadows and bright highlights. No muted, faded, sepia, beige or washed-out tones.`);
+    parts.push(c.info?`Text: the headline “${c.phrase}” as ${c.typography}, plus a bright, easy-to-read info panel listing exactly: ${c.info.map((t,i)=>`“${i+1}. ${t}”`).join(', ')}. Spell all text exactly as written.`
+                     :`Text: “${c.phrase}” as ${c.typography}, with real depth, cast shadows and a contrasting edge so it pops off the background. ${c.pair?c.pair+' ':''}Spell it exactly as written.`);
+    parts.push(`Accents: ${join(c.elements).toLowerCase()}, layered around the subject without crowding it. Composition: ${lc(c.composition)}, with one clear focal point and clean space for the lettering.`);
+    if(c.cta)parts.push(`Call to action: add “${c.cta}” as a smaller, clear call-to-action line in a contrasting button or banner, placed so it reads right after the headline. Spell it exactly as written.`);
+    if(c.twist)parts.push(c.twist);
+    if(FORMAT[c.output])parts.push(FORMAT[c.output]);
+    if(c.type==='SISTERHOOD & GREEK LIFE')parts.push('Do not include crests, shields or official organization insignia.');
+    parts.push('No brand logos. Quality: high-end, magazine-cover and luxury ad campaign quality, 8K detail, razor-sharp focus, flawless surface, skin and fabric detail, crisp edges and clean, legible typography.');
+    c.prompt=parts.join(' ');
+    c.personality=pick(personalities);c.number=++sequence;lastType=c.type;lastPhrase=c.phrase;
+    return c;
+  }
+  throw new Error('no challenge');
+}
+return {generate,colors,themes:Object.keys(themes),vibes:['Any',...Object.keys(VIBES)]};
+})();
+
+const $=id=>document.getElementById(id);
+const btn=$('shuffle'),btnText=$('button-text'),result=$('result'),status=$('status');
+const copyBtn=$('copy-prompt'),feedback=$('copy-feedback');
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+let copyTimer,copyGen=0;
+
+function resetCopy(){clearTimeout(copyTimer);copyGen++;copyBtn.disabled=false;copyBtn.textContent='📋 Copy Prompt';feedback.hidden=true;feedback.textContent='';}
+
+function render(c){
+  resetCopy();
+  $('r-type').textContent=c.type;
+  $('challenge-number').textContent='#'+String(c.number).padStart(3,'0');
+  $('personality').textContent=c.personality;
+  const fields=c.fields||[['Theme',c.theme,true],['Challenge Type',c.type],['Vibe',c.vibe],[c.subject.includes('brought to life')?'Object Character':'Subject',c.subject,true],['Setting / Scene',c.scene],['Visual Style',c.style],['Mood / Energy',c.mood],['Color Palette',c.palette.join(' + ')],['Lettering',c.typography],[c.info?'Headline + Info':'Text / Phrase','“'+c.phrase+'”'+(c.info?' · '+c.info.map((t,i)=>(i+1)+'. '+t).join(' · '):'')],['Decorative Elements',c.elements.join(' · ')],['Composition',c.composition],['Lighting',c.light],['Output Type',c.output],...(c.cta?[['Call to Action',c.cta]]:[])];
+  const box=$('details');box.replaceChildren();
+  for(const [label,value,wide] of fields){
+    const d=document.createElement('div');d.className='detail'+(wide?' wide':'');
+    const l=document.createElement('p');l.className='detail-label';l.textContent=label;
+    const v=document.createElement('p');v.className='detail-value';v.textContent=value;
+    d.append(l,v);
+    if(label==='Color Palette'){const sw=document.createElement('div');sw.className='swatches';sw.setAttribute('aria-hidden','true');
+      for(const col of c.palette){const s=document.createElement('span');s.className='swatch';s.style.background=Engine.colors[col]||'#888';s.title=col;sw.append(s)}d.append(sw)}
+    box.append(d);
+  }
+  const tw=$('twist');tw.hidden=!c.twist;tw.textContent=c.twist?'✦ '+c.twist.replace('Wild card: ','WILD CARD: '):'';
+  $('prompt').textContent=c.prompt;
+  result.hidden=false;result.classList.remove('reveal');void result.offsetWidth;result.classList.add('reveal');
+  status.textContent='Your new '+c.type.toLowerCase()+' challenge is ready.';
+  result.focus({preventScroll:true});
+  result.scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'start'});
+}
+
+async function shuffle(){
+  btn.disabled=true;$('again').disabled=true;btn.classList.add('shuffling');btn.setAttribute('aria-busy','true');
+  status.textContent='Building your surprise.';
+  try{
+    const words=reduced.matches?['Here it comes…']:['Stirring the pot…','Pulling a palette…','Picking the lettering…','Setting the scene…','Here it comes…'];
+    for(const w of words){btnText.textContent=w;await new Promise(r=>setTimeout(r,reduced.matches?120:240));}
+    render(Engine.generate());
+  }catch(e){status.textContent='The shuffle hit a snag. Try again.';}
+  finally{btn.disabled=false;$('again').disabled=false;btn.classList.remove('shuffling');btn.removeAttribute('aria-busy');btnText.textContent='Surprise Me';}
+}
+btn.addEventListener('click',shuffle);
+$('again').addEventListener('click',()=>{window.scrollTo({top:0,behavior:reduced.matches?'auto':'smooth'});shuffle();});
+
+function legacyCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus({preventScroll:true});ta.select();ta.setSelectionRange(0,text.length);
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){ok=false;}
+  document.body.removeChild(ta);
+  return ok;
+}
+function copied(){
+  copyBtn.textContent='✓ Copied!';feedback.textContent='The full image prompt is on your clipboard.';feedback.hidden=false;
+  clearTimeout(copyTimer);copyTimer=setTimeout(resetCopy,2000);
+}
+function selectPrompt(){
+  const el=$('prompt');el.focus({preventScroll:true});
+  const r=document.createRange();r.selectNodeContents(el);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+  feedback.textContent='Your browser blocked automatic copying. The prompt is highlighted: press Ctrl+C (Windows) or ⌘C (Mac), or press and hold it and choose Copy.';feedback.hidden=false;
+}
+copyBtn.addEventListener('click',()=>{
+  const text=$('prompt').textContent;if(!text)return;
+  const gen=++copyGen;
+  // Synchronous copy first: works inside embedded frames where the Clipboard API is blocked.
+  if(legacyCopy(text)){copied();return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>{if(gen===copyGen)copied();},()=>{if(gen===copyGen)selectPrompt();});
+  }else{selectPrompt();}
+});
+</script>
+</body>
+</html>
